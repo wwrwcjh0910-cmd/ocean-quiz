@@ -387,6 +387,7 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
+            display: none; /* 默认隐藏 */
         }
 
         .qrcode-container {
@@ -541,16 +542,16 @@
 
                 <div class="prize-info" id="prize-info"></div>
 
-                <!-- 二维码区域 -->
-                <div class="qrcode-section">
+                <!-- 二维码区域（默认隐藏，只有分数>=80分时才显示） -->
+                <div class="qrcode-section" id="qrcode-section">
                     <div class="qrcode-container">
                         <!-- 二维码图片，使用相对路径 -->
                         <img src="qrcode.png" alt="领取奖品二维码" class="qrcode-image" id="qrcode-image">
                     </div>
                     <div class="qrcode-text" id="qrcode-text">
-                        <p><strong>扫描二维码领取奖品或获取更多信息</strong></p>
-                        <p>如果您获得了80分以上，请扫描二维码填写收货地址</p>
-                        <p>或关注《蔚蓝碎片》桌游最新动态</p>
+                        <p><strong>🎉 恭喜获奖！请扫描下方二维码领取奖品 🎉</strong></p>
+                        <p>请扫描二维码填写收货地址，我们将尽快为您寄送《蔚蓝碎片》桌游</p>
+                        <p>二维码有效期为7天，请尽快填写</p>
                     </div>
                 </div>
             </div>
@@ -662,6 +663,7 @@
         const userInfoDisplay = document.getElementById('user-info-display');
         const qrcodeImage = document.getElementById('qrcode-image');
         const qrcodeText = document.getElementById('qrcode-text');
+        const qrcodeSection = document.getElementById('qrcode-section');
 
         // 表单元素
         const nameInput = document.getElementById('name');
@@ -869,32 +871,36 @@
 
             // 根据分数设置样式和消息
             let scoreClass, message, prizeMessage;
+            let showQrcode = false; // 控制是否显示二维码
 
             if (score >= 80) {
                 scoreClass = 'score-excellent';
                 message = '恭喜！您获得了免费桌游资格！';
                 prizeMessage = '您已答对8题以上，总分达到80分，可以获得《蔚蓝碎片》桌游一份！请扫描下方二维码，填写收货地址信息，以便我们寄送！';
-
-                // 高亮显示二维码区域
-                qrcodeText.innerHTML = `
-                    <p><strong>🎉 恭喜获奖！请扫描下方二维码领取奖品 🎉</strong></p>
-                    <p>请扫描二维码填写收货地址，我们将尽快为您寄送《蔚蓝碎片》桌游</p>
-                    <p>二维码有效期为7天，请尽快填写</p>
-                `;
+                showQrcode = true; // 分数>=80，显示二维码
             } else if (score >= 60) {
                 scoreClass = 'score-good';
                 message = '不错！但还需要继续努力哦！';
-                prizeMessage = '谢谢您的参与！您也可以扫描下方二维码关注《蔚蓝碎片》桌游最新动态';
+                prizeMessage = '谢谢您的参与！';
+                showQrcode = false; // 分数<80，不显示二维码
             } else {
                 scoreClass = 'score-average';
                 message = '加油！多了解海洋知识，保护我们的蓝色星球！';
-                prizeMessage = '谢谢您的参与！您也可以扫描下方二维码关注《蔚蓝碎片》桌游最新动态';
+                prizeMessage = '谢谢您的参与！';
+                showQrcode = false; // 分数<80，不显示二维码
             }
 
             // 应用样式和消息
             scoreCircle.className = `score-circle ${scoreClass}`;
             resultMessage.textContent = message;
             prizeInfo.textContent = prizeMessage;
+
+            // 控制二维码显示/隐藏
+            if (showQrcode) {
+                qrcodeSection.style.display = 'block'; // 显示二维码区域
+            } else {
+                qrcodeSection.style.display = 'none'; // 隐藏二维码区域
+            }
 
             // 更新进度条
             progressBar.style.width = '100%';
