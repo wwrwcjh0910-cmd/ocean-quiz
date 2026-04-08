@@ -918,6 +918,7 @@
         }
 
         // 提交数据到Google表格
+// 提交数据到Google表格 - 绕过CORS的方法
 function submitToGoogleSheets() {
     // 您的Google Apps Script Web应用URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxIPX3h71S9Gxs0L0DO4jxGxdDUCa3U_ciXfoKn3Yjlv6ehmjb9fgp-OlPFgauF1tRm/exec';
@@ -928,7 +929,8 @@ function submitToGoogleSheets() {
         phone: userInfo.phone || '',
         email: userInfo.email || '',
         score: score,
-        answers: JSON.stringify(userAnswers || [])
+        // 不发送answers数组，只发送摘要
+        summary: `答题${userAnswers.length}题，正确${score/10}题`
     });
     
     // 添加时间戳避免缓存
@@ -936,34 +938,31 @@ function submitToGoogleSheets() {
     
     // 创建完整的URL
     const fullURL = `${scriptURL}?${params}`;
-    console.log('发送请求到:', fullURL);
+    console.log('发送请求到:', decodeURIComponent(fullURL));
     
-    // 使用XMLHttpRequest发送请求
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', fullURL, true);
+    // 方法1：使用img标签（不会触发CORS）
+    const img = new Image();
+    img.src = fullURL;
     
-    xhr.onload = function() {
-        console.log('请求完成，状态码:', xhr.status);
-        if (xhr.status === 200) {
-            try {
-                const response = JSON.parse(xhr.responseText);
-                console.log('服务器响应:', response);
-                if (response.result === 'success') {
-                    console.log('✅ 数据成功保存到Google表格，行号:', response.row);
-                } else {
-                    console.error('❌ 服务器返回错误:', response.message);
-                }
-            } catch (e) {
-                console.error('❌ 解析响应失败:', e, '原始响应:', xhr.responseText);
-            }
-        } else {
-            console.error('❌ 请求失败，状态码:', xhr.status);
-        }
-    };
+    console.log('使用img标签发送数据，绕过CORS限制');
     
-    xhr.onerror = function() {
-        console.error('❌ 网络请求失败');
-    };
+    // 方法2：使用navigator.sendBeacon（现代浏览器支持）
+    if (navigator.sendBeacon) {
+        const formData = new FormData();
+        Object.entries({
+            name: userInfo.name,
+            phone: userInfo.phone,
+            email: userInfo.email,
+            score: score,
+            summary: `答题${userAnswers.length}题，正确${score/10}题`
+        }).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+        
+        navigator.sendBeacon(scriptURL, formData);
+        console.log('同时使用sendBeacon发送数据');
+    }
+}
     
     xhr.send();
 }
