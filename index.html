@@ -912,6 +912,42 @@
                 qrcodeImage.alt = "二维码加载失败，请检查图片文件";
                 qrcodeImage.style.border = "2px dashed #F44336";
             };
+
+            // 提交数据到Google表格
+            submitToGoogleSheets();
+        }
+
+        // 提交数据到Google表格
+        function submitToGoogleSheets() {
+            // 您的Google Apps Script Web应用URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwaZXGygphk1q8ICxFIHo_kIChrnNLMRQyBkNaYyZWVUElbmVotzwsF3BEedFof6QKd/exec';
+            
+            // 准备要提交的数据
+            const formData = {
+                name: userInfo.name,
+                phone: userInfo.phone,
+                email: userInfo.email,
+                score: score,
+                answers: userAnswers
+            };
+            
+            // 使用Fetch API提交数据
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // 注意：no-cors模式无法读取响应
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                console.log('答题数据已保存到Google表格');
+                // 由于no-cors模式，无法获取响应，但数据应该已提交
+            })
+            .catch(error => {
+                console.error('保存失败:', error);
+                // 可以在这里添加错误处理，比如显示提示信息
+            });
         }
     </script>
 </body>
