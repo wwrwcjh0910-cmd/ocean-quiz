@@ -946,21 +946,7 @@ function submitToGoogleSheets() {
     
     console.log('使用img标签发送数据，绕过CORS限制');
     
-    // 方法2：使用navigator.sendBeacon（现代浏览器支持）
-    if (navigator.sendBeacon) {
-        const formData = new FormData();
-        Object.entries({
-            name: userInfo.name,
-            phone: userInfo.phone,
-            email: userInfo.email,
-            score: score,
-            summary: `答题${userAnswers.length}题，正确${score/10}题`
-        }).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-        
-        navigator.sendBeacon(scriptURL, formData);
-        console.log('同时使用sendBeacon发送数据');
+
     }
 }
     
