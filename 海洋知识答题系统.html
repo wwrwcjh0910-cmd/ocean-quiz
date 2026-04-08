@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋知识答题 - 《蔚蓝碎片》桌游互动</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(to right, #0066cc, #0099ff);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            padding: 10px 30px;
+            color: #666;
+            font-size: 14px;
+            background: #f9f9f9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        /* 个人信息页面样式 */
+        .info-page, .question-page, .answer-page, .result-page {
+            display: none;
+        }
+
+        .info-page.active, .question-page.active, .answer-page.active, .result-page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #2196F3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+
+        .form-group input.error {
+            border-color: #F44336;
+        }
+
+        .error-message {
+            color: #F44336;
+            font-size: 14px;
+            display: none;
+        }
+
+        .info-notice {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* 题目页面样式 */
+        .question-title {
+            font-size: 24px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            background: #e9f7fe;
+            border-color: #b3e0ff;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: #e3f2fd;
+            border-color: #2196F3;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: #2196F3;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .option.selected .option-letter {
+            background: #1976D2;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-start {
+            background: #2196F3;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-start:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            background: #2196F3;
+            color: white;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            background: #4CAF50;
+            color: white;
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .btn-next:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        /* 答案页面样式 */
+        .answer-icon {
+            text-align: center;
+            font-size: 80px;
+            margin: 20px 0 30px;
+        }
+
+        .correct-icon {
+            color: #4CAF50;
+        }
+
+        .incorrect-icon {
+            color: #F44336;
+        }
+
+        .answer-result {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .correct-result {
+            color: #4CAF50;
+        }
+
+        .incorrect-result {
+            color: #F44336;
+        }
+
+        .correct-answer {
+            background: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .explanation {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .explanation h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        /* 结果页面样式 */
+        .score-container {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: white;
+        }
+
+        .score-average {
+            background: linear-gradient(135deg, #FF9800, #F44336);
+            color: white;
+        }
+
+        .score-value {
+            font-size: 60px;
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        .result-message {
+            font-size: 24px;
+            margin: 20px 0 30px;
+            color: #333;
+        }
+
+        .prize-info {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0 30px;
+            text-align: center;
+        }
+
+        .user-info-display {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0 30px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        /* 二维码区域样式 */
+        .qrcode-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .qrcode-container {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .qrcode-image {
+            width: 180px;
+            height: 180px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #eee;
+        }
+
+        .qrcode-text {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .question-title {
+                font-size: 20px;
+            }
+
+            .option {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+            }
+
+            .score-value {
+                font-size: 45px;
+            }
+
+            .qrcode-image {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <h1>海洋知识答题挑战</h1>
+            <p>《蔚蓝碎片》桌游互动问答 - 共10题，每题10分</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="progress-text" id="progress-text">请先填写个人信息</div>
+
+        <div class="content">
+            <!-- 个人信息页面 -->
+            <div class="info-page active" id="info-page">
+                <div class="info-notice">
+                    <h3 style="color: #1976D2; margin-bottom: 10px;">个人信息填写说明</h3>
+                    <p>请准确填写以下信息，答题完成后我们将根据您的得分情况确定是否获得免费桌游。获奖者将通过您填写的联系方式通知您。</p>
+                </div>
+
+                <form class="info-form" id="info-form">
+                    <div class="form-group">
+                        <label for="name">姓名：</label>
+                        <input type="text" id="name" name="name" placeholder="请输入您的姓名" required>
+                        <div class="error-message" id="name-error">姓名不能为空</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">手机号：</label>
+                        <input type="tel" id="phone" name="phone" placeholder="请输入11位手机号码" maxlength="11" required>
+                        <div class="error-message" id="phone-error">请输入正确的11位手机号码</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">邮箱：</label>
+                        <input type="email" id="email" name="email" placeholder="请输入有效的邮箱地址" required>
+                        <div class="error-message" id="email-error">请输入有效的邮箱地址（需包含@）</div>
+                    </div>
+
+                    <div class="buttons">
+                        <button type="button" class="btn btn-start" id="start-btn" disabled>开始答题</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 题目页面 -->
+            <div class="question-page" id="question-page">
+                <div class="question-title" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                <div class="buttons">
+                    <button class="btn btn-submit" id="submit-btn" disabled>提交答案</button>
+                </div>
+            </div>
+
+            <!-- 答案页面 -->
+            <div class="answer-page" id="answer-page">
+                <div class="answer-icon">
+                    <div id="answer-icon"></div>
+                </div>
+                <div class="answer-result" id="answer-result"></div>
+                <div class="correct-answer" id="correct-answer"></div>
+                <div class="explanation">
+                    <h3>答案解析</h3>
+                    <p id="explanation-text"></p>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-next" id="next-btn">下一题</button>
+                </div>
+            </div>
+
+            <!-- 结果页面 -->
+            <div class="result-page" id="result-page">
+                <div class="user-info-display" id="user-info-display"></div>
+
+                <div class="score-container">
+                    <div class="score-circle" id="score-circle">
+                        <div class="score-value" id="score-value">0</div>
+                        <div class="score-total">/ 100</div>
+                    </div>
+                    <div class="result-message" id="result-message"></div>
+                </div>
+
+                <div class="prize-info" id="prize-info"></div>
+
+                <!-- 二维码区域 -->
+                <div class="qrcode-section">
+                    <div class="qrcode-container">
+                        <!-- 二维码图片，使用相对路径 -->
+                        <img src="qrcode.png" alt="领取奖品二维码" class="qrcode-image" id="qrcode-image">
+                    </div>
+                    <div class="qrcode-text" id="qrcode-text">
+                        <p><strong>扫描二维码领取奖品或获取更多信息</strong></p>
+                        <p>如果您获得了80分以上，请扫描二维码填写收货地址</p>
+                        <p>或关注《蔚蓝碎片》桌游最新动态</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2023 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
+        </div>
+    </div>
+
+    <script>
+        // 用户信息
+        let userInfo = {
+            name: '',
+            phone: '',
+            email: ''
+        };
+
+        // 题目数据
+        const questions = [
+            {
+                question: "在世界各大洋中均有分布的海洋动物是______?",
+                options: ["斑海豹", "大翅鲸", "鲸鲨", "帝企鹅"],
+                correctAnswer: 1,
+                explanation: "大翅鲸，又叫座头鲸，是全球范围内受关注程度最高、研究最为深入的鲸之一。它们遍布世界各地的所有海洋中，每年都要长途迁徙，是地球上迁徙距离最长的哺乳动物之一。"
+            },
+            {
+                question: "《BBNJ协定》的目标是确保______的海洋生物多样性的长期养护和可持续利用？",
+                options: ["各国领海", "大西洋", "国家管辖范围以外海域", "极地"],
+                correctAnswer: 2,
+                explanation: "BBNJ协定全称为《<联合国海洋法公约>下国家管辖范围以外区域海洋生物多样性的养护和可持续利用协定》。其中，'国家管辖范围以外区域'包括'公海'和'区域'，'公海'可理解为水体部分，'区域'则指海床、洋底及其底土。"
+            },
+            {
+                question: "有'海上漂浮的金色雨林'之称的地方是_______？",
+                options: ["马尾藻海", "珊瑚海", "撒雅德玛哈浅滩", "马里亚纳海沟"],
+                correctAnswer: 0,
+                explanation: "马尾藻海位于北大西洋中部，是世界上唯一一个没有海岸线的海。漂浮的金色马尾藻是它的基础，马尾藻海也因此得名。马尾藻海有众多独特物种，也是许多海洋动物的育幼场及迁徙通道，是全球生态最重要的地方之一。"
+            },
+            {
+                question: "以下哪个不属于深海采矿带来的主要潜在环境影响？",
+                options: ["破坏深海生物栖息地", "释放悬浮沉积物", "产生震动和噪音", "增加塑料垃圾污染"],
+                correctAnswer: 3,
+                explanation: "深海采矿是指从深海海底挖掘并提取矿产资源的过程，其潜在环境影响包括破坏深海生物栖息地、释放悬浮沉积物造成生物窒息或中毒，以及带来震动、噪声，干扰海洋哺乳动物的行为活动等。"
+            },
+            {
+                question: "目前已发现的寿命最长的深海珊瑚已活了多久？",
+                options: ["100年", "1500年", "4000年", "8000年"],
+                correctAnswer: 2,
+                explanation: "深海珊瑚生活在水下800-3500米的深海区域，它们生长缓慢，有些每年只长几毫米。据测算，目前已发现的寿命最长的深水珊瑚已活了4000多年。底拖网捕捞是当前深海珊瑚面临的最大威胁之一。"
+            },
+            {
+                question: "______是国际公认保护海洋最有力的工具之一？",
+                options: ["公民科学", "海洋保护区", "科学研究", "环保行动"],
+                correctAnswer: 1,
+                explanation: "海洋保护区是指通过禁止或严格限制人类活动，给海洋生态系统一个修复和休憩的场所，简单来说就是物理的划出一个范围，限制这个区域内的人类活动。海洋保护区是国际公认保护海洋最有利的工具之一。"
+            },
+            {
+                question: "以下哪种捕捞方式不属于破坏性的捕捞方式？",
+                options: ["底拖网", "电鱼、炸鱼", "幽灵渔具", "可选择性捕捞的笼具和陷阱"],
+                correctAnswer: 3,
+                explanation: "破坏性的捕捞方式指的是在使用渔具捕鱼时破坏或彻底移除一个或多个生态系统的重要成分，使其无法提供重要生态系统功能。比如：沿海床刮过的底拖网，被遗弃会缠绕海洋生物的'幽灵渔具'，以及无区别杀伤大小鱼群的电鱼等。"
+            },
+            {
+                question: "通常'位于海面以下，突出海底1000米以上的隆起地形'，我们称其为______?",
+                options: ["海山", "海丘", "海沟", "海脊"],
+                correctAnswer: 0,
+                explanation: "海山通常指'位于海面以下，突出海底1000米以上的隆起地形'。海山是珊瑚和海绵等深海生物生长的理想场所，它们又进一步成为无脊椎动物、鱼类、海龟、鲸类、鲨鱼等其他生物的重要栖息地。"
+            },
+            {
+                question: "以下选项中，以同类相食而闻名的海洋动物是______?",
+                options: ["鲸鲨", "帝企鹅", "洪堡鱿鱼", "蓝鲸"],
+                correctAnswer: 2,
+                explanation: "洪堡鱿鱼是一种生长迅速的大型头足类动物。但其寿命约为一年，体型较大的个体可达两年。为了维持高生长速度，洪堡鱿鱼捕食小鱼、甲壳类动物等。同时，它们以同类相食而闻名，体型越大的个体更有可能以同类为食。"
+            },
+            {
+                question: "国家管辖范围以外区域，俗称'公海'，蕴藏着独特的生态系统，如全球面积最大的海草床、水下绵延数千公里的海底山脉等，其约占全球海洋表面积的_______?",
+                options: ["32%", "71%", "90%", "61%"],
+                correctAnswer: 3,
+                explanation: "国家管辖范围以外区域，约覆盖全球海洋表面积的61%，是多种鲸、鲨鱼、海龟等珍稀海洋动物的迁徙通道和重要栖息地，并为许多重要经济鱼类提供了繁育场所。"
+            }
+        ];
+
+        // 答题状态
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let userAnswers = [];
+        let score = 0;
+
+        // DOM元素
+        const infoPage = document.getElementById('info-page');
+        const questionPage = document.getElementById('question-page');
+        const answerPage = document.getElementById('answer-page');
+        const resultPage = document.getElementById('result-page');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const startBtn = document.getElementById('start-btn');
+        const progressBar = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
+        const answerIcon = document.getElementById('answer-icon');
+        const answerResult = document.getElementById('answer-result');
+        const correctAnswer = document.getElementById('correct-answer');
+        const explanationText = document.getElementById('explanation-text');
+        const scoreValue = document.getElementById('score-value');
+        const scoreCircle = document.getElementById('score-circle');
+        const resultMessage = document.getElementById('result-message');
+        const prizeInfo = document.getElementById('prize-info');
+        const userInfoDisplay = document.getElementById('user-info-display');
+        const qrcodeImage = document.getElementById('qrcode-image');
+        const qrcodeText = document.getElementById('qrcode-text');
+
+        // 表单元素
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const nameError = document.getElementById('name-error');
+        const phoneError = document.getElementById('phone-error');
+        const emailError = document.getElementById('email-error');
+
+        // 验证表单函数
+        function validateForm() {
+            let isValid = true;
+
+            // 验证姓名
+            if (!nameInput.value.trim()) {
+                nameError.style.display = 'block';
+                nameInput.classList.add('error');
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+                nameInput.classList.remove('error');
+            }
+
+            // 验证手机号
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(phoneInput.value)) {
+                phoneError.style.display = 'block';
+                phoneInput.classList.add('error');
+                isValid = false;
+            } else {
+                phoneError.style.display = 'none';
+                phoneInput.classList.remove('error');
+            }
+
+            // 验证邮箱
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.style.display = 'block';
+                emailInput.classList.add('error');
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+                emailInput.classList.remove('error');
+            }
+
+            // 启用/禁用开始答题按钮
+            startBtn.disabled = !isValid;
+            return isValid;
+        }
+
+        // 实时验证表单
+        nameInput.addEventListener('input', validateForm);
+        phoneInput.addEventListener('input', validateForm);
+        emailInput.addEventListener('input', validateForm);
+
+        // 开始答题按钮点击事件
+        startBtn.addEventListener('click', function() {
+            if (!validateForm()) return;
+
+            // 保存用户信息
+            userInfo = {
+                name: nameInput.value.trim(),
+                phone: phoneInput.value,
+                email: emailInput.value
+            };
+
+            // 切换到题目页面
+            infoPage.classList.remove('active');
+            questionPage.classList.add('active');
+
+            // 更新进度条
+            updateProgress(0);
+
+            // 加载第一题
+            loadQuestion(currentQuestionIndex);
+        });
+
+        // 加载题目
+        function loadQuestion(index) {
+            const question = questions[index];
+            questionText.textContent = `${index + 1}. ${question.question}`;
+            optionsContainer.innerHTML = '';
+
+            // 重置选择
+            selectedOption = null;
+            submitBtn.disabled = true;
+
+            // 创建选项
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `
+                    <span class="option-letter">${String.fromCharCode(65 + optionIndex)}</span>
+                    <span class="option-text">${option}</span>
+                `;
+
+                // 添加点击事件
+                optionElement.addEventListener('click', () => {
+                    // 移除其他选项的选择状态
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+
+                    // 设置当前选项为选中状态
+                    optionElement.classList.add('selected');
+                    selectedOption = optionIndex;
+                    submitBtn.disabled = false;
+                });
+
+                optionsContainer.appendChild(optionElement);
+            });
+
+            // 更新进度条
+            updateProgress(index);
+        }
+
+        // 更新进度条
+        function updateProgress(index) {
+            const progress = ((index + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `第${index + 1}题 / 共${questions.length}题`;
+        }
+
+        // 提交答案
+        submitBtn.addEventListener('click', () => {
+            if (selectedOption === null) return;
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.correctAnswer;
+
+            // 记录用户答案
+            userAnswers.push({
+                questionIndex: currentQuestionIndex,
+                selectedOption: selectedOption,
+                isCorrect: isCorrect
+            });
+
+            // 更新分数
+            if (isCorrect) {
+                score += 10;
+            }
+
+            // 显示答案页面
+            showAnswerPage(isCorrect, currentQuestion);
+        });
+
+        // 显示答案页面
+        function showAnswerPage(isCorrect, question) {
+            // 切换页面
+            questionPage.classList.remove('active');
+            answerPage.classList.add('active');
+
+            // 设置图标和结果文本
+            if (isCorrect) {
+                answerIcon.innerHTML = '✓';
+                answerIcon.className = 'correct-icon';
+                answerResult.textContent = '回答正确！';
+                answerResult.className = 'answer-result correct-result';
+            } else {
+                answerIcon.innerHTML = '✗';
+                answerIcon.className = 'incorrect-icon';
+                answerResult.textContent = '回答错误！';
+                answerResult.className = 'answer-result incorrect-result';
+            }
+
+            // 显示正确答案
+            const correctOption = question.options[question.correctAnswer];
+            const correctLetter = String.fromCharCode(65 + question.correctAnswer);
+            correctAnswer.textContent = `正确答案：${correctLetter}. ${correctOption}`;
+
+            // 显示解析
+            explanationText.textContent = question.explanation;
+        }
+
+        // 下一题
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                // 加载下一题
+                loadQuestion(currentQuestionIndex);
+                answerPage.classList.remove('active');
+                questionPage.classList.add('active');
+            } else {
+                // 显示结果页面
+                showResultPage();
+            }
+        });
+
+        // 显示结果页面
+        function showResultPage() {
+            answerPage.classList.remove('active');
+            resultPage.classList.add('active');
+
+            // 显示用户信息
+            userInfoDisplay.innerHTML = `
+                <h3 style="color: #1976D2; margin-bottom: 10px;">答题人信息</h3>
+                <p><strong>姓名：</strong>${userInfo.name}</p>
+                <p><strong>手机号：</strong>${userInfo.phone}</p>
+                <p><strong>邮箱：</strong>${userInfo.email}</p>
+            `;
+
+            // 更新分数显示
+            scoreValue.textContent = score;
+
+            // 根据分数设置样式和消息
+            let scoreClass, message, prizeMessage;
+
+            if (score >= 80) {
+                scoreClass = 'score-excellent';
+                message = '恭喜！您获得了免费桌游资格！';
+                prizeMessage = '您已答对8题以上，总分达到80分，可以获得《蔚蓝碎片》桌游一份！请扫描下方二维码，填写收货地址信息，以便我们寄送！';
+
+                // 高亮显示二维码区域
+                qrcodeText.innerHTML = `
+                    <p><strong>🎉 恭喜获奖！请扫描下方二维码领取奖品 🎉</strong></p>
+                    <p>请扫描二维码填写收货地址，我们将尽快为您寄送《蔚蓝碎片》桌游</p>
+                    <p>二维码有效期为7天，请尽快填写</p>
+                `;
+            } else if (score >= 60) {
+                scoreClass = 'score-good';
+                message = '不错！但还需要继续努力哦！';
+                prizeMessage = '谢谢您的参与！您也可以扫描下方二维码关注《蔚蓝碎片》桌游最新动态';
+            } else {
+                scoreClass = 'score-average';
+                message = '加油！多了解海洋知识，保护我们的蓝色星球！';
+                prizeMessage = '谢谢您的参与！您也可以扫描下方二维码关注《蔚蓝碎片》桌游最新动态';
+            }
+
+            // 应用样式和消息
+            scoreCircle.className = `score-circle ${scoreClass}`;
+            resultMessage.textContent = message;
+            prizeInfo.textContent = prizeMessage;
+
+            // 更新进度条
+            progressBar.style.width = '100%';
+            progressText.textContent = `已完成所有题目`;
+
+            // 尝试加载二维码图片，如果失败则显示提示
+            qrcodeImage.onerror = function() {
+                console.warn("二维码图片加载失败，请确保qrcode.png与HTML文件在同一目录下");
+                qrcodeImage.alt = "二维码加载失败，请检查图片文件";
+                qrcodeImage.style.border = "2px dashed #F44336";
+            };
+        }
+    </script>
+</body>
+</html>
