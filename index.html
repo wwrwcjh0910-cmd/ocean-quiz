@@ -913,45 +913,63 @@
                 qrcodeImage.style.border = "2px dashed #F44336";
             };
 
-            // 提交数据到Google表格
+            // 提交数据到Google表格 - 使用JSONP方法
             submitToGoogleSheets();
         }
 
-        // 提交数据到Google表格
-// 提交数据到Google表格 - 绕过CORS的方法
-function submitToGoogleSheets() {
-    // 您的Google Apps Script Web应用URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxIPX3h71S9Gxs0L0DO4jxGxdDUCa3U_ciXfoKn3Yjlv6ehmjb9fgp-OlPFgauF1tRm/exec';
-    
-    // 准备要提交的数据
-    const params = new URLSearchParams({
-        name: userInfo.name || '',
-        phone: userInfo.phone || '',
-        email: userInfo.email || '',
-        score: score,
-        // 不发送answers数组，只发送摘要
-        summary: `答题${userAnswers.length}题，正确${score/10}题`
-    });
-    
-    // 添加时间戳避免缓存
-    params.append('t', Date.now());
-    
-    // 创建完整的URL
-    const fullURL = `${scriptURL}?${params}`;
-    console.log('发送请求到:', decodeURIComponent(fullURL));
-    
-    // 方法1：使用img标签（不会触发CORS）
-    const img = new Image();
-    img.src = fullURL;
-    
-    console.log('使用img标签发送数据，绕过CORS限制');
-    
-
-    }
-}
-    
-    xhr.send();
-}
+        // 提交数据到Google表格 - 使用JSONP方法
+        function submitToGoogleSheets() {
+            // 您的Google Apps Script Web应用URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxIPX3h71S9Gxs0L0DO4jxGxdDUCa3U_ciXfoKn3Yjlv6ehmjb9fgp-OlPFgauF1tRm/exec';
+            
+            // 计算正确题数
+            const correctCount = score / 10;
+            
+            // 准备要提交的数据
+            const formData = {
+                name: userInfo.name || '',
+                phone: userInfo.phone || '',
+                email: userInfo.email || '',
+                score: score,
+                summary: `答题${userAnswers.length}题，正确${correctCount}题，得分${score}分`
+            };
+            
+            // 创建唯一的回调函数名
+            const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2);
+            
+            // 创建script标签
+            const script = document.createElement('script');
+            
+            // 创建URL
+            const url = new URL(scriptURL);
+            url.searchParams.append('callback', callbackName);
+            Object.keys(formData).forEach(key => {
+                url.searchParams.append(key, formData[key]);
+            });
+            
+            script.src = url.toString();
+            
+            // 定义回调函数
+            window[callbackName] = function(response) {
+                console.log('JSONP响应:', response);
+                if (response && response.result === 'success') {
+                    console.log('✅ 数据成功保存到Google表格');
+                } else {
+                    console.error('❌ 保存失败:', response ? response.message : '未知错误');
+                }
+                
+                // 清理
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            };
+            
+            // 添加到页面
+            document.body.appendChild(script);
+            
+            console.log('通过JSONP发送数据到Google表格');
+        }
     </script>
 </body>
 </html>
