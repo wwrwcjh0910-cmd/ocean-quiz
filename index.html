@@ -796,64 +796,110 @@
             window[callbackName] = function(response) {
                 console.log('重复检查响应:', response);
                 
-                if (response && response.result === 'success') {
-                    if (response.duplicate === false) {
-                        // 无重复，可以开始答题
-                        console.log('✅ 手机号和邮箱可用');
-                        
-                        // 添加到已检查列表
-                        checkedPhones.add(phone);
-                        checkedEmails.add(email);
-                        
-                        // 切换到题目页面
-                        infoPage.classList.remove('active');
-                        questionPage.classList.add('active');
-                        
-                        // 更新进度条
-                        updateProgress(0);
-                        
-                        // 加载第一题
-                        loadQuestion(currentQuestionIndex);
-                    } else {
-                        // 有重复
-                        console.error('❌ 发现重复:', response.message);
-                        
-                        if (response.message.includes('手机号')) {
-                            phoneDuplicateError.style.display = 'block';
-                            phoneInput.classList.add('error');
-                            checkedPhones.add(phone);
-                        } else if (response.message.includes('邮箱')) {
-                            emailDuplicateError.style.display = 'block';
-                            emailInput.classList.add('error');
-                            checkedEmails.add(email);
-                        }
-                        
-                        // 恢复按钮状态
-                        startBtn.disabled = false;
-                        startBtn.textContent = '开始答题';
-                        
-                        // 显示错误消息
-                        alert('⚠️ ' + response.message + '\n\n请使用其他手机号或邮箱');
-                    }
-                } else {
-                    console.error('检查失败:', response ? response.message : '未知错误');
-                    // 如果检查失败，不允许继续
-                    alert('⚠️ 重复检查失败，无法开始答题\n\n请刷新页面重试，或检查网络连接');
-                    
-                    // 恢复按钮状态
-                    startBtn.disabled = false;
-                    startBtn.textContent = '开始答题';
-                }
-                
-                // 清理
-                delete window[callbackName];
+                // 清理script标签
                 if (script.parentNode) {
                     script.parentNode.removeChild(script);
                 }
+                
+                // 恢复按钮状态
+                startBtn.disabled = false;
+                startBtn.textContent = '开始答题';
+                
+                if (response) {
+                    console.log('响应详情:', JSON.stringify(response));
+                    
+                    // 检查响应格式
+                    if (response.result === 'success') {
+                        if (response.duplicate === false) {
+                            // 无重复，可以开始答题
+                            console.log('✅ 手机号和邮箱可用');
+                            
+                            // 添加到已检查列表
+                            checkedPhones.add(phone);
+                            checkedEmails.add(email);
+                            
+                            // 切换到题目页面
+                            infoPage.classList.remove('active');
+                            questionPage.classList.add('active');
+                            
+                            // 更新进度条
+                            updateProgress(0);
+                            
+                            // 加载第一题
+                            loadQuestion(currentQuestionIndex);
+                        } else {
+                            // 有重复
+                            console.error('❌ 发现重复:', response.message);
+                            
+                            if (response.message && response.message.includes('手机号')) {
+                                phoneDuplicateError.style.display = 'block';
+                                phoneInput.classList.add('error');
+                                checkedPhones.add(phone);
+                                alert('⚠️ 该手机号已参与过答题\n\n请使用其他手机号');
+                            } else if (response.message && response.message.includes('邮箱')) {
+                                emailDuplicateError.style.display = 'block';
+                                emailInput.classList.add('error');
+                                checkedEmails.add(email);
+                                alert('⚠️ 该邮箱已参与过答题\n\n请使用其他邮箱');
+                            } else {
+                                alert('⚠️ 该手机号或邮箱已参与过答题\n\n请使用其他联系方式');
+                            }
+                        }
+                    } else if (response.result === 'error') {
+                        // 服务器返回错误
+                        console.error('检查失败:', response.message);
+                        alert('⚠️ 重复检查失败: ' + (response.message || '未知错误') + '\n\n请刷新页面重试');
+                    } else {
+                        // 响应格式不正确
+                        console.error('响应格式不正确:', response);
+                        alert('⚠️ 服务器响应格式不正确\n\n请刷新页面重试');
+                    }
+                } else {
+                    // 无响应
+                    console.error('无响应');
+                    alert('⚠️ 服务器无响应\n\n请检查网络连接后重试');
+                }
+                
+                // 清理回调函数
+                delete window[callbackName];
+            };
+            
+            // 添加错误处理
+            script.onerror = function() {
+                console.error('脚本加载失败');
+                alert('⚠️ 重复检查失败，请检查网络连接\n\n请刷新页面重试');
+                
+                // 恢复按钮状态
+                startBtn.disabled = false;
+                startBtn.textContent = '开始答题';
+                
+                // 清理
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                delete window[callbackName];
             };
             
             // 添加到页面
             document.body.appendChild(script);
+            
+            // 设置超时处理
+            setTimeout(function() {
+                if (window[callbackName]) {
+                    console.warn('重复检查请求超时');
+                    alert('⚠️ 重复检查超时，请重试');
+                    
+                    // 恢复按钮状态
+                    startBtn.disabled = false;
+                    startBtn.textContent = '开始答题';
+                    
+                    // 清理
+                    delete window[callbackName];
+                    if (script.parentNode) {
+                        script.parentNode.removeChild(script);
+                    }
+                }
+            }, 10000); // 10秒超时
         }
 
         // 加载题目
@@ -1081,7 +1127,7 @@
                     console.error('❌ 保存失败:', response.message);
                     
                     // 检查是否是重复提交
-                    if (response.message.includes('已参与过答题')) {
+                    if (response.message && response.message.includes('已参与过答题')) {
                         // 添加到已使用列表
                         if (response.message.includes('手机号')) {
                             checkedPhones.add(userInfo.phone);
