@@ -130,6 +130,12 @@
             display: none;
         }
 
+        .duplicate-message {
+            color: #FF9800;
+            font-size: 14px;
+            display: none;
+        }
+
         .info-notice {
             background: #e3f2fd;
             padding: 15px;
@@ -476,6 +482,7 @@
                 <div class="info-notice">
                     <h3 style="color: #1976D2; margin-bottom: 10px;">个人信息填写说明</h3>
                     <p>请准确填写以下信息，答题完成后我们将根据您的得分情况确定是否获得免费桌游。获奖者将通过您填写的联系方式通知您。</p>
+                    <p><strong>注意：每个手机号和邮箱只能参与一次答题</strong></p>
                 </div>
 
                 <form class="info-form" id="info-form">
@@ -489,12 +496,14 @@
                         <label for="phone">手机号：</label>
                         <input type="tel" id="phone" name="phone" placeholder="请输入11位手机号码" maxlength="11" required>
                         <div class="error-message" id="phone-error">请输入正确的11位手机号码</div>
+                        <div class="duplicate-message" id="phone-duplicate-error">⚠️ 该手机号已参与过答题</div>
                     </div>
 
                     <div class="form-group">
                         <label for="email">邮箱：</label>
                         <input type="email" id="email" name="email" placeholder="请输入有效的邮箱地址" required>
                         <div class="error-message" id="email-error">请输入有效的邮箱地址（需包含@）</div>
+                        <div class="duplicate-message" id="email-duplicate-error">⚠️ 该邮箱已参与过答题</div>
                     </div>
 
                     <div class="buttons">
@@ -569,6 +578,10 @@
             phone: '',
             email: ''
         };
+
+        // 记录已检查过的手机号和邮箱
+        let checkedPhones = new Set();
+        let checkedEmails = new Set();
 
         // 题目数据
         const questions = [
@@ -672,10 +685,13 @@
         const nameError = document.getElementById('name-error');
         const phoneError = document.getElementById('phone-error');
         const emailError = document.getElementById('email-error');
+        const phoneDuplicateError = document.getElementById('phone-duplicate-error');
+        const emailDuplicateError = document.getElementById('email-duplicate-error');
 
         // 验证表单函数
         function validateForm() {
             let isValid = true;
+            let hasDuplicate = false;
 
             // 验证姓名
             if (!nameInput.value.trim()) {
@@ -696,6 +712,15 @@
             } else {
                 phoneError.style.display = 'none';
                 phoneInput.classList.remove('error');
+                
+                // 检查手机号是否重复
+                if (checkedPhones.has(phoneInput.value)) {
+                    phoneDuplicateError.style.display = 'block';
+                    phoneInput.classList.add('error');
+                    hasDuplicate = true;
+                } else {
+                    phoneDuplicateError.style.display = 'none';
+                }
             }
 
             // 验证邮箱
@@ -707,11 +732,20 @@
             } else {
                 emailError.style.display = 'none';
                 emailInput.classList.remove('error');
+                
+                // 检查邮箱是否重复
+                if (checkedEmails.has(emailInput.value.toLowerCase())) {
+                    emailDuplicateError.style.display = 'block';
+                    emailInput.classList.add('error');
+                    hasDuplicate = true;
+                } else {
+                    emailDuplicateError.style.display = 'none';
+                }
             }
 
             // 启用/禁用开始答题按钮
-            startBtn.disabled = !isValid;
-            return isValid;
+            startBtn.disabled = !isValid || hasDuplicate;
+            return isValid && !hasDuplicate;
         }
 
         // 实时验证表单
@@ -727,19 +761,103 @@
             userInfo = {
                 name: nameInput.value.trim(),
                 phone: phoneInput.value,
-                email: emailInput.value
+                email: emailInput.value.toLowerCase()
             };
 
-            // 切换到题目页面
-            infoPage.classList.remove('active');
-            questionPage.classList.add('active');
-
-            // 更新进度条
-            updateProgress(0);
-
-            // 加载第一题
-            loadQuestion(currentQuestionIndex);
+            // 检查手机号和邮箱是否重复
+            checkDuplicateBeforeStart(userInfo.phone, userInfo.email);
         });
+
+        // 检查手机号和邮箱是否重复
+        function checkDuplicateBeforeStart(phone, email) {
+            console.log('开始检查重复:', { phone, email });
+            
+            // 显示加载状态
+            startBtn.disabled = true;
+            startBtn.textContent = '检查中...';
+            
+            // 使用Google Apps Script检查重复
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby849JnU-iZvzLLC5BqM4Esd4talP10hZ7ye06NgYpnyO9I9-vS9vV1uVTTTEDesO3k/exec';
+            const callbackName = 'callback_check_' + Date.now() + '_' + Math.random().toString(36).substr(2);
+            
+            const script = document.createElement('script');
+            const url = new URL(scriptURL);
+            url.searchParams.append('callback', callbackName);
+            url.searchParams.append('action', 'check_duplicate');
+            url.searchParams.append('phone', phone);
+            url.searchParams.append('email', email);
+            
+            script.src = url.toString();
+            
+            // 定义回调函数
+            window[callbackName] = function(response) {
+                console.log('重复检查响应:', response);
+                
+                if (response && response.result === 'success') {
+                    if (response.duplicate === false) {
+                        // 无重复，可以开始答题
+                        console.log('✅ 手机号和邮箱可用');
+                        
+                        // 添加到已检查列表
+                        checkedPhones.add(phone);
+                        checkedEmails.add(email);
+                        
+                        // 切换到题目页面
+                        infoPage.classList.remove('active');
+                        questionPage.classList.add('active');
+                        
+                        // 更新进度条
+                        updateProgress(0);
+                        
+                        // 加载第一题
+                        loadQuestion(currentQuestionIndex);
+                    } else {
+                        // 有重复
+                        console.error('❌ 发现重复:', response.message);
+                        
+                        if (response.message.includes('手机号')) {
+                            phoneDuplicateError.style.display = 'block';
+                            phoneInput.classList.add('error');
+                            checkedPhones.add(phone);
+                        } else if (response.message.includes('邮箱')) {
+                            emailDuplicateError.style.display = 'block';
+                            emailInput.classList.add('error');
+                            checkedEmails.add(email);
+                        }
+                        
+                        // 显示错误消息
+                        alert('⚠️ ' + response.message + '\n\n请使用其他手机号或邮箱');
+                    }
+                } else {
+                    console.error('检查失败:', response ? response.message : '未知错误');
+                    // 如果检查失败，仍然允许继续
+                    alert('⚠️ 重复检查失败，但您可以继续答题\n\n如果手机号或邮箱已使用过，数据将无法保存');
+                    
+                    // 切换到题目页面
+                    infoPage.classList.remove('active');
+                    questionPage.classList.add('active');
+                    
+                    // 更新进度条
+                    updateProgress(0);
+                    
+                    // 加载第一题
+                    loadQuestion(currentQuestionIndex);
+                }
+                
+                // 恢复按钮状态
+                startBtn.disabled = false;
+                startBtn.textContent = '开始答题';
+                
+                // 清理
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            };
+            
+            // 添加到页面
+            document.body.appendChild(script);
+        }
 
         // 加载题目
         function loadQuestion(index) {
@@ -954,8 +1072,38 @@
                 console.log('JSONP响应:', response);
                 if (response && response.result === 'success') {
                     console.log('✅ 数据成功保存到Google表格');
+                    
+                    // 添加到已使用列表
+                    checkedPhones.add(userInfo.phone);
+                    checkedEmails.add(userInfo.email);
+                    
+                } else if (response && response.result === 'error') {
+                    console.error('❌ 保存失败:', response.message);
+                    
+                    // 检查是否是重复提交
+                    if (response.message.includes('已参与过答题')) {
+                        // 添加到已使用列表
+                        if (response.message.includes('手机号')) {
+                            checkedPhones.add(userInfo.phone);
+                        } else if (response.message.includes('邮箱')) {
+                            checkedEmails.add(userInfo.email);
+                        }
+                        
+                        // 显示错误提示
+                        const originalPrizeInfo = prizeInfo.textContent;
+                        prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
+                            '<p style="font-weight: bold;">⚠️ 数据保存失败</p>' +
+                            '<p>' + response.message + '</p>' +
+                            '<p style="font-size: 14px; margin-top: 10px;">您的答题记录无法保存，请使用其他手机号或邮箱重新答题</p>' +
+                        '</div>';
+                        
+                        // 3秒后恢复原始信息
+                        setTimeout(() => {
+                            prizeInfo.textContent = originalPrizeInfo;
+                        }, 5000);
+                    }
                 } else {
-                    console.error('❌ 保存失败:', response ? response.message : '未知错误');
+                    console.error('❌ 未知响应:', response);
                 }
 
                 // 清理
@@ -973,4 +1121,3 @@
     </script>
 </body>
 </html>
-
