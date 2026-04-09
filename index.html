@@ -558,7 +558,7 @@
         </div>
 
         <div class="footer">
-            <p>© 2026 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
+            <p>© 2023 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
         </div>
     </div>
 
@@ -914,98 +914,63 @@
             };
 
             // 提交数据到Google表格 - 使用JSONP方法
-function submitToGoogleSheets() {
-    // 您的Google Apps Script Web应用URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby849JnU-iZvzLLC5BqM4Esd4talP10hZ7ye06NgYpnyO9I9-vS9vV1uVTTTEDesO3k/exec';
-    
-    // 计算正确题数
-    const correctCount = score / 10;
-    
-    // 准备要提交的数据
-    const formData = {
-        name: userInfo.name || '',
-        phone: userInfo.phone || '',
-        email: userInfo.email || '',
-        score: score,
-        summary: `答题${userAnswers.length}题，正确${correctCount}题，得分${score}分`
-    };
-    
-    // 创建唯一的回调函数名
-    const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2);
-    
-    // 创建script标签
-    const script = document.createElement('script');
-    
-    // 创建URL
-    const url = new URL(scriptURL);
-    url.searchParams.append('callback', callbackName);
-    Object.keys(formData).forEach(key => {
-        url.searchParams.append(key, formData[key]);
-    });
-    
-    script.src = url.toString();
-    
-    // 显示加载状态
-    const prizeInfo = document.getElementById('prize-info');
-    const originalPrizeInfo = prizeInfo.textContent;
-    prizeInfo.innerHTML = '<div style="text-align: center; color: #2196F3;"><p>正在保存数据，请稍候...</p></div>';
-    
-    // 定义回调函数
-    window[callbackName] = function(response) {
-        console.log('JSONP响应:', response);
-        
-        // 恢复原始信息
-        setTimeout(() => {
-            prizeInfo.textContent = originalPrizeInfo;
-        }, 2000);
-        
-        if (response && response.result === 'success') {
-            console.log('✅ 数据成功保存到Google表格');
-            
-            // 显示成功消息
-            prizeInfo.innerHTML = '<div style="text-align: center; color: #4CAF50; padding: 10px; background-color: #e8f5e9; border-radius: 5px; margin: 10px 0;">' +
-                '<p style="font-weight: bold;">🎉 答题完成！数据已成功保存</p>' +
-                '<p>感谢您的参与！</p>' +
-            '</div>';
-            
-        } else if (response && response.result === 'error') {
-            console.error('❌ 保存失败:', response.message);
-            
-            // 检查是否是重复提交
-            if (response.message.includes('已参与过答题')) {
-                // 显示重复提交的错误消息
-                prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
-                    '<p style="font-weight: bold;">⚠️ 提交失败</p>' +
-                    '<p>' + response.message + '</p>' +
-                    '<p style="font-size: 14px; margin-top: 10px;">如果您认为这是个错误，请尝试使用其他手机号或邮箱</p>' +
-                '</div>';
-            } else {
-                // 显示其他错误消息
-                prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
-                    '<p style="font-weight: bold;">❌ 保存失败</p>' +
-                    '<p>' + (response.message || '未知错误') + '</p>' +
-                '</div>';
-            }
-        } else {
-            console.error('❌ 未知响应:', response);
-            prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
-                '<p style="font-weight: bold;">❌ 网络错误</p>' +
-                '<p>无法连接到服务器，请检查网络连接</p>' +
-            '</div>';
+            submitToGoogleSheets();
         }
-        
-        // 清理
-        delete window[callbackName];
-        if (script.parentNode) {
-            script.parentNode.removeChild(script);
+
+        // 提交数据到Google表格 - 使用JSONP方法
+        function submitToGoogleSheets() {
+            // 您的Google Apps Script Web应用URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby849JnU-iZvzLLC5BqM4Esd4talP10hZ7ye06NgYpnyO9I9-vS9vV1uVTTTEDesO3k/exec';
+
+            // 计算正确题数
+            const correctCount = score / 10;
+
+            // 准备要提交的数据
+            const formData = {
+                name: userInfo.name || '',
+                phone: userInfo.phone || '',
+                email: userInfo.email || '',
+                score: score,
+                summary: `答题${userAnswers.length}题，正确${correctCount}题，得分${score}分`
+            };
+
+            // 创建唯一的回调函数名
+            const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2);
+
+            // 创建script标签
+            const script = document.createElement('script');
+
+            // 创建URL
+            const url = new URL(scriptURL);
+            url.searchParams.append('callback', callbackName);
+            Object.keys(formData).forEach(key => {
+                url.searchParams.append(key, formData[key]);
+            });
+
+            script.src = url.toString();
+
+            // 定义回调函数
+            window[callbackName] = function(response) {
+                console.log('JSONP响应:', response);
+                if (response && response.result === 'success') {
+                    console.log('✅ 数据成功保存到Google表格');
+                } else {
+                    console.error('❌ 保存失败:', response ? response.message : '未知错误');
+                }
+
+                // 清理
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            };
+
+            // 添加到页面
+            document.body.appendChild(script);
+
+            console.log('通过JSONP发送数据到Google表格');
         }
-    };
-    
-    // 添加到页面
-    document.body.appendChild(script);
-    
-    console.log('通过JSONP发送数据到Google表格');
-}
     </script>
 </body>
 </html>
+
