@@ -567,7 +567,7 @@
         </div>
 
         <div class="footer">
-            <p>© 2026 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
+            <p>© 2023 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
         </div>
     </div>
 
@@ -712,7 +712,7 @@
             } else {
                 phoneError.style.display = 'none';
                 phoneInput.classList.remove('error');
-                
+
                 // 检查手机号是否重复
                 if (checkedPhones.has(phoneInput.value.trim())) {
                     phoneDuplicateError.style.display = 'block';
@@ -732,7 +732,7 @@
             } else {
                 emailError.style.display = 'none';
                 emailInput.classList.remove('error');
-                
+
                 // 检查邮箱是否重复
                 if (checkedEmails.has(emailInput.value.trim().toLowerCase())) {
                     emailDuplicateError.style.display = 'block';
@@ -771,66 +771,66 @@
         // 检查手机号和邮箱是否重复
         function checkDuplicateBeforeStart(phone, email) {
             console.log('开始检查重复:', { phone, email });
-            
+
             // 显示加载状态
             startBtn.disabled = true;
             startBtn.textContent = '检查中...';
-            
+
             // 使用Google Apps Script检查重复
             const scriptURL = 'https://script.google.com/macros/s/AKfycbz6cx3BV4SWoF-KCVqd9U6JlBhKP5xxgWsiVyk_-eL9m4ODWsqM4Sbb0owoeFVjsGX9/exec';
             const callbackName = 'callback_check_' + Date.now() + '_' + Math.random().toString(36).substr(2);
-            
+
             const script = document.createElement('script');
             const url = new URL(scriptURL);
             url.searchParams.append('callback', callbackName);
             url.searchParams.append('action', 'check_duplicate');  // 重要：只检查，不保存
             url.searchParams.append('phone', phone);
             url.searchParams.append('email', email);
-            
+
             // 注意：这里不传递name、score、summary参数，因为只是检查，不保存数据
             console.log('发送重复检查请求，不包含姓名、分数等参数');
-            
+
             script.src = url.toString();
-            
+
             // 定义回调函数
             window[callbackName] = function(response) {
                 console.log('重复检查响应:', response);
-                
+
                 // 清理script标签
                 if (script.parentNode) {
                     script.parentNode.removeChild(script);
                 }
-                
+
                 // 恢复按钮状态
                 startBtn.disabled = false;
                 startBtn.textContent = '开始答题';
-                
+
                 if (response) {
                     console.log('响应详情:', JSON.stringify(response));
-                    
+
                     // 检查响应格式
                     if (response.result === 'success') {
                         if (response.duplicate === false) {
                             // 无重复，可以开始答题
                             console.log('✅ 手机号和邮箱可用');
-                            
+
                             // 添加到已检查列表
                             checkedPhones.add(phone);
                             checkedEmails.add(email);
-                            
+
                             // 切换到题目页面
                             infoPage.classList.remove('active');
                             questionPage.classList.add('active');
-                            
+
                             // 更新进度条
                             updateProgress(0);
-                            
+
                             // 加载第一题
                             loadQuestion(currentQuestionIndex);
                         } else {
                             // 有重复
                             console.error('❌ 发现重复:', response.message);
-                            
+
                             if (response.message && response.message.includes('手机号')) {
                                 phoneDuplicateError.style.display = 'block';
                                 phoneInput.classList.add('error');
@@ -859,40 +859,40 @@
                     console.error('无响应');
                     alert('⚠️ 服务器无响应\n\n请检查网络连接后重试');
                 }
-                
+
                 // 清理回调函数
                 delete window[callbackName];
             };
-            
+
             // 添加错误处理
             script.onerror = function() {
                 console.error('脚本加载失败');
                 alert('⚠️ 重复检查失败，请检查网络连接\n\n请刷新页面重试');
-                
+
                 // 恢复按钮状态
                 startBtn.disabled = false;
                 startBtn.textContent = '开始答题';
-                
+
                 // 清理
                 if (script.parentNode) {
                     script.parentNode.removeChild(script);
                 }
                 delete window[callbackName];
             };
-            
+
             // 添加到页面
             document.body.appendChild(script);
-            
+
             // 设置超时处理
             setTimeout(function() {
                 if (window[callbackName]) {
                     console.warn('重复检查请求超时');
                     alert('⚠️ 重复检查超时，请重试');
-                    
+
                     // 恢复按钮状态
                     startBtn.disabled = false;
                     startBtn.textContent = '开始答题';
-                    
+
                     // 清理
                     delete window[callbackName];
                     if (script.parentNode) {
@@ -1118,14 +1118,14 @@
                 console.log('Google表格保存响应:', response);
                 if (response && response.result === 'success') {
                     console.log('✅ 数据成功保存到Google表格');
-                    
+
                     // 添加到已使用列表
                     checkedPhones.add(userInfo.phone);
                     checkedEmails.add(userInfo.email);
-                    
+
                 } else if (response && response.result === 'error') {
                     console.error('❌ 保存失败:', response.message);
-                    
+
                     // 检查是否是重复提交
                     if (response.message && response.message.includes('已参与过答题')) {
                         // 添加到已使用列表
@@ -1134,7 +1134,7 @@
                         } else if (response.message.includes('邮箱')) {
                             checkedEmails.add(userInfo.email);
                         }
-                        
+
                         // 显示错误提示
                         const originalPrizeInfo = prizeInfo.textContent;
                         prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
@@ -1142,7 +1142,7 @@
                             '<p>' + response.message + '</p>' +
                             '<p style="font-size: 14px; margin-top: 10px;">您的答题记录无法保存，请使用其他手机号或邮箱重新答题</p>' +
                         '</div>';
-                        
+
                         // 3秒后恢复原始信息
                         setTimeout(() => {
                             prizeInfo.textContent = originalPrizeInfo;
