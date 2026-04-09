@@ -825,28 +825,19 @@
                             checkedEmails.add(email);
                         }
                         
-                        // 显示错误消息
-                        alert('⚠️ ' + response.message + '\n\n请使用其他手机号或邮箱');
+                        // 恢复按钮状态
+                        startBtn.disabled = false;
+                        startBtn.textContent = '开始答题';
                     }
                 } else {
                     console.error('检查失败:', response ? response.message : '未知错误');
-                    // 如果检查失败，仍然允许继续
-                    alert('⚠️ 重复检查失败，但您可以继续答题\n\n如果手机号或邮箱已使用过，数据将无法保存');
+                    // 如果检查失败，不允许继续
+                    alert('⚠️ 重复检查失败，无法开始答题\n\n请刷新页面重试，或检查网络连接');
                     
-                    // 切换到题目页面
-                    infoPage.classList.remove('active');
-                    questionPage.classList.add('active');
-                    
-                    // 更新进度条
-                    updateProgress(0);
-                    
-                    // 加载第一题
-                    loadQuestion(currentQuestionIndex);
+                    // 恢复按钮状态
+                    startBtn.disabled = false;
+                    startBtn.textContent = '开始答题';
                 }
-                
-                // 恢复按钮状态
-                startBtn.disabled = false;
-                startBtn.textContent = '开始答题';
                 
                 // 清理
                 delete window[callbackName];
