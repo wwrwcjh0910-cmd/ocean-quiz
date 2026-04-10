@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>海洋知识答题 - 《蔚蓝碎片》桌游互动</title>
     <style>
-        /* 保持所有原始样式不变 */
+        /* 所有样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -659,7 +659,7 @@
                 question: "国家管辖范围以外区域，俗称'公海'，蕴藏着独特的生态系统，如全球面积最大的海草床、水下绵延数千公里的海底山脉等，其约占全球海洋表面积的_______?",
                 options: ["32%", "71%", "90%", "61%"],
                 correctAnswer: 3,
-                explanation: "国家管辖范围以外区域，约覆盖全球海洋表面积的61%，是多种鲸、鲨鱼、海鼠等珍稀海洋动物的迁徙通道和重要栖息地，并为许多重要经济鱼类提供了繁育场所。"
+                explanation: "国家管辖范围以外区域，约覆盖全球海洋表面积的61%，是多种鲸、鲨鱼、海龟等珍稀海洋动物的迁徙通道和重要栖息地，并为许多重要经济鱼类提供了繁育场所。"
             }
         ];
 
@@ -704,38 +704,29 @@
         const phoneDuplicateError = document.getElementById('phone-duplicate-error');
         const emailDuplicateError = document.getElementById('email-duplicate-error');
 
-        // ==================== 方案4：多代理重试机制 ====================
-        // 多个CORS代理服务器列表（按可用性排序）
+        // ==================== 代理和API函数 ====================
+        // 代理服务器列表（已根据可用性调整）
         const PROXY_SERVERS = [
-            'https://api.codetabs.com/v1/proxy?quest=',  // 代理1：较稳定
-            'https://corsproxy.io/?',  // 代理2：常用代理
-            'https://api.allorigins.win/raw?url=',  // 代理3：备用代理
-            'https://thingproxy.freeboard.io/fetch/'  // 代理4：备用代理
+            'https://api.codetabs.com/v1/proxy?quest=',  // 最稳定，从您的日志看这个可用
+            'https://corsproxy.io/?',  // 备用代理1
+            'https://thingproxy.freeboard.io/fetch/',  // 备用代理2
+            'https://api.allorigins.win/raw?url='  // 备用代理3
         ];
 
-        // 获取代理URL
-        function getProxyUrl(targetUrl) {
-            // 随机选择一个代理服务器（分散负载）
-            const randomIndex = Math.floor(Math.random() * PROXY_SERVERS.length);
-            const proxy = PROXY_SERVERS[randomIndex];
-            return proxy + encodeURIComponent(targetUrl);
-        }
-
-        // 通过代理发送请求（带重试机制）
+        // 通过代理发送请求
         async function fetchWithRetry(url, options = {}, retries = 3) {
             let lastError = null;
             
-            // 按顺序尝试所有代理服务器
             for (let attempt = 0; attempt < retries; attempt++) {
                 for (let i = 0; i < PROXY_SERVERS.length; i++) {
-                    const proxyIndex = (i + attempt) % PROXY_SERVERS.length; // 轮询代理
+                    const proxyIndex = (i + attempt) % PROXY_SERVERS.length;
                     const proxyUrl = PROXY_SERVERS[proxyIndex] + encodeURIComponent(url);
                     
                     try {
                         console.log(`尝试代理 [${attempt+1}/${retries}]: ${PROXY_SERVERS[proxyIndex].substring(0, 30)}...`);
                         
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                        const timeoutId = setTimeout(() => controller.abort(), 15000);
                         
                         const response = await fetch(proxyUrl, {
                             ...options,
@@ -751,16 +742,16 @@
                             console.warn(`⚠️ 代理返回错误: ${response.status}`);
                         }
                     } catch (error) {
-                        console.warn(`❌ 代理失败 [${PROXY_SERVERS[proxyIndex].substring(0, 30)}...]: ${error.name === 'AbortError' ? '超时' : error.message}`);
+                        console.warn(`❌ 代理失败 [${PROXY_SERVERS[proxyIndex].substring(0, 30)}...]: ${error.name}`);
                         lastError = error;
-                        continue; // 继续尝试下一个代理
+                        continue;
                     }
                 }
                 
-                // 如果所有代理都失败，等待一段时间后重试
                 if (attempt < retries - 1) {
-                    console.log(`⏳ 所有代理失败，${2 ** attempt}秒后重试...`);
-                    await new Promise(resolve => setTimeout(resolve, 2000 * Math.pow(2, attempt)));
+                    const waitTime = 2000 * Math.pow(2, attempt);
+                    console.log(`⏳ 所有代理失败，${waitTime/1000}秒后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
                 }
             }
             
@@ -771,7 +762,6 @@
         async function getFeishuToken() {
             const now = Date.now();
             
-            // 如果token还有30分钟以上有效期，直接返回
             if (feishuTokenCache.token && feishuTokenCache.expireTime > now + 30 * 60 * 1000) {
                 console.log('使用缓存的飞书token');
                 return feishuTokenCache.token;
@@ -809,38 +799,6 @@
                 }
             } catch (error) {
                 console.error('获取飞书token时出错:', error);
-                
-                // 如果所有代理都失败，尝试直接请求（极少数情况可能允许跨域）
-                try {
-                    console.log('尝试直接请求飞书API（绕过代理）...');
-                    const directResponse = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
-                        method: 'POST',
-                        mode: 'cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            app_id: FEISHU_CONFIG.APP_ID,
-                            app_secret: FEISHU_CONFIG.APP_SECRET
-                        })
-                    });
-                    
-                    if (directResponse.ok) {
-                        const data = await directResponse.json();
-                        if (data.code === 0) {
-                            feishuTokenCache = {
-                                token: data.tenant_access_token,
-                                expireTime: now + (data.expire - 300) * 1000
-                            };
-                            console.log('✅ 直接请求成功，获取到token');
-                            return data.tenant_access_token;
-                        }
-                    }
-                } catch (directError) {
-                    console.warn('直接请求也失败:', directError.message);
-                }
-                
                 throw error;
             }
         }
@@ -849,8 +807,6 @@
         async function checkDuplicateWithFeishu(phone, email) {
             try {
                 const token = await getFeishuToken();
-                
-                // 查询飞书表格
                 const queryUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records?page_size=100`;
                 
                 const response = await fetchWithRetry(queryUrl, {
@@ -868,7 +824,6 @@
                     const currentPhone = phone ? phone.toString().trim() : '';
                     const currentEmail = email ? email.toString().trim().toLowerCase() : '';
                     
-                    // 检查重复
                     for (let i = 0; i < items.length; i++) {
                         const record = items[i];
                         const fields = record.fields || {};
@@ -890,37 +845,31 @@
                 }
             } catch (error) {
                 console.error('检查重复时出错:', error);
-                // 如果检查失败，允许用户继续答题，但会有风险
                 return { duplicate: false, message: '检查失败，但允许提交' };
             }
         }
 
-        // 保存数据到飞书
+        // 保存数据到飞书（修复字段格式问题）
         async function saveToFeishu(formData) {
             try {
                 const token = await getFeishuToken();
-                const timeStr = new Date().toLocaleString('zh-CN', {
-                    timeZone: 'Asia/Shanghai',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                
+                // 重要修复：根据飞书表格字段类型正确格式化数据
+                // 从您的错误日志看，问题可能是字段类型不匹配
+                // 常见问题：飞书表格期望数字字段但收到字符串，或反之
                 
                 const recordData = {
                     fields: {
-                        '姓名': (formData.name || '未提供').trim(),
-                        '手机号': (formData.phone || '未提供').trim(),
-                        '邮箱': (formData.email || '未提供').trim().toLowerCase(),
-                        '分数': parseInt(formData.score) || 0,
-                        '填写时间': timeStr,
-                        '答题详情': formData.summary || '无答题记录'
+                        '姓名': String(formData.name || '未提供').trim(),
+                        '手机号': String(formData.phone || '未提供').trim(),
+                        '邮箱': String(formData.email || '未提供').trim().toLowerCase(),
+                        '分数': Number(formData.score) || 0,  // 确保是数字类型
+                        '填写时间': new Date().toISOString(),  // 使用ISO格式时间字符串
+                        '答题详情': String(formData.summary || '无答题记录')
                     }
                 };
                 
-                console.log('准备保存的数据:', recordData);
+                console.log('准备保存的数据（修复后）:', recordData);
                 
                 const saveUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records`;
                 
@@ -938,6 +887,72 @@
                 
                 if (response.status === 200 && data.code === 0) {
                     return { success: true, message: '数据保存成功', record_id: data.data.record.record_id };
+                } else if (data.code === 1254060) {
+                    // TextFieldConvFail 错误，尝试不同的字段格式
+                    console.log('字段转换失败，尝试备用格式...');
+                    
+                    // 备用方案1：尝试将所有字段转为字符串
+                    const backupData1 = {
+                        fields: {
+                            '姓名': String(formData.name || '未提供').trim(),
+                            '手机号': String(formData.phone || '未提供').trim(),
+                            '邮箱': String(formData.email || '未提供').trim().toLowerCase(),
+                            '分数': String(formData.score || 0),  // 改为字符串
+                            '填写时间': String(new Date().toLocaleString('zh-CN')),  // 改为字符串
+                            '答题详情': String(formData.summary || '无答题记录')
+                        }
+                    };
+                    
+                    console.log('尝试备用格式1:', backupData1);
+                    
+                    const backupResponse1 = await fetchWithRetry(saveUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(backupData1)
+                    });
+                    
+                    const backupData1Result = await backupResponse1.json();
+                    console.log('备用格式1响应:', backupData1Result);
+                    
+                    if (backupResponse1.status === 200 && backupData1Result.code === 0) {
+                        return { success: true, message: '数据保存成功（备用格式1）', record_id: backupData1Result.data.record.record_id };
+                    }
+                    
+                    // 备用方案2：尝试使用时间戳
+                    const backupData2 = {
+                        fields: {
+                            '姓名': String(formData.name || '未提供').trim(),
+                            '手机号': String(formData.phone || '未提供').trim(),
+                            '邮箱': String(formData.email || '未提供').trim().toLowerCase(),
+                            '分数': Number(formData.score) || 0,
+                            '填写时间': Date.now(),  // 使用时间戳
+                            '答题详情': String(formData.summary || '无答题记录')
+                        }
+                    };
+                    
+                    console.log('尝试备用格式2:', backupData2);
+                    
+                    const backupResponse2 = await fetchWithRetry(saveUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(backupData2)
+                    });
+                    
+                    const backupData2Result = await backupResponse2.json();
+                    console.log('备用格式2响应:', backupData2Result);
+                    
+                    if (backupResponse2.status === 200 && backupData2Result.code === 0) {
+                        return { success: true, message: '数据保存成功（备用格式2）', record_id: backupData2Result.data.record.record_id };
+                    }
+                    
+                    return { success: false, message: `字段格式转换失败，已尝试多种格式` };
+                    
                 } else if (data.code === 1254045) {
                     return { success: false, message: '字段名错误，请联系管理员检查表格字段' };
                 } else if (data.code === 91403) {
@@ -977,7 +992,6 @@
                 phoneError.style.display = 'none';
                 phoneInput.classList.remove('error');
                 
-                // 检查手机号是否重复
                 if (checkedPhones.has(phoneInput.value.trim())) {
                     phoneDuplicateError.style.display = 'block';
                     phoneInput.classList.add('error');
@@ -997,7 +1011,6 @@
                 emailError.style.display = 'none';
                 emailInput.classList.remove('error');
                 
-                // 检查邮箱是否重复
                 if (checkedEmails.has(emailInput.value.trim().toLowerCase())) {
                     emailDuplicateError.style.display = 'block';
                     emailInput.classList.add('error');
@@ -1007,7 +1020,6 @@
                 }
             }
             
-            // 启用/禁用开始答题按钮
             startBtn.disabled = !isValid || hasDuplicate;
             return isValid && !hasDuplicate;
         }
@@ -1021,14 +1033,12 @@
         startBtn.addEventListener('click', function() {
             if (!validateForm()) return;
             
-            // 保存用户信息
             userInfo = {
                 name: nameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 email: emailInput.value.trim().toLowerCase()
             };
             
-            // 检查手机号和邮箱是否重复
             checkDuplicateBeforeStart(userInfo.phone, userInfo.email);
         });
         
@@ -1036,7 +1046,6 @@
         async function checkDuplicateBeforeStart(phone, email) {
             console.log('开始检查重复（使用飞书API）:', { phone, email });
             
-            // 显示加载状态
             startBtn.disabled = true;
             startBtn.textContent = '检查中...';
             
@@ -1045,18 +1054,15 @@
                 console.log('重复检查响应:', response);
                 
                 if (response.duplicate === false) {
-                    // 无重复，可以开始答题
                     console.log('✅ 手机号和邮箱可用');
                     checkedPhones.add(phone);
                     checkedEmails.add(email);
                     
-                    // 切换到题目页面
                     infoPage.classList.remove('active');
                     questionPage.classList.add('active');
                     updateProgress(0);
                     loadQuestion(currentQuestionIndex);
                 } else {
-                    // 有重复
                     console.error('❌ 发现重复:', response.message);
                     handleDuplicateError(response.message, phone, email);
                 }
@@ -1064,7 +1070,6 @@
                 console.error('检查重复失败:', error);
                 alert('⚠️ 重复检查失败，请稍后重试\n错误：' + error.message);
                 
-                // 即使检查失败，也允许用户继续（开发环境）
                 console.log('检查失败，但允许继续答题（测试环境）');
                 checkedPhones.add(phone);
                 checkedEmails.add(email);
@@ -1073,7 +1078,6 @@
                 updateProgress(0);
                 loadQuestion(currentQuestionIndex);
             } finally {
-                // 恢复按钮状态
                 startBtn.disabled = false;
                 startBtn.textContent = '开始答题';
             }
@@ -1099,7 +1103,6 @@
         // 处理保存错误
         function handleSaveError(message) {
             if (message && message.includes('已参与过答题')) {
-                // 添加到已使用列表
                 if (message.includes('手机号')) {
                     checkedPhones.add(userInfo.phone);
                 } else if (message.includes('邮箱')) {
@@ -1122,6 +1125,12 @@
                     '<p>' + message + '</p>' +
                     '<p style="font-size: 14px; margin-top: 10px;">请联系管理员检查飞书应用权限设置</p>' +
                     '</div>';
+            } else if (message.includes('字段格式转换失败')) {
+                prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
+                    '<p style="font-weight: bold;">⚠️ 数据格式不匹配</p>' +
+                    '<p>' + message + '</p>' +
+                    '<p style="font-size: 14px; margin-top: 10px;">请检查飞书表格字段类型设置，确保与代码中数据类型匹配</p>' +
+                    '</div>';
             } else if (message.includes('网络错误') || message.includes('Failed to fetch')) {
                 prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
                     '<p style="font-weight: bold;">⚠️ 网络连接问题</p>' +
@@ -1143,11 +1152,9 @@
             questionText.textContent = `${index + 1}. ${question.question}`;
             optionsContainer.innerHTML = '';
             
-            // 重置选择
             selectedOption = null;
             submitBtn.disabled = true;
             
-            // 创建选项
             question.options.forEach((option, optionIndex) => {
                 const optionElement = document.createElement('div');
                 optionElement.className = 'option';
@@ -1156,14 +1163,11 @@
                     <span class="option-text">${option}</span>
                 `;
                 
-                // 添加点击事件
                 optionElement.addEventListener('click', () => {
-                    // 移除其他选项的选择状态
                     document.querySelectorAll('.option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     
-                    // 设置当前选项为选中状态
                     optionElement.classList.add('selected');
                     selectedOption = optionIndex;
                     submitBtn.disabled = false;
@@ -1172,7 +1176,6 @@
                 optionsContainer.appendChild(optionElement);
             });
             
-            // 更新进度条
             updateProgress(index);
         }
         
@@ -1190,29 +1193,24 @@
             const currentQuestion = questions[currentQuestionIndex];
             const isCorrect = selectedOption === currentQuestion.correctAnswer;
             
-            // 记录用户答案
             userAnswers.push({
                 questionIndex: currentQuestionIndex,
                 selectedOption: selectedOption,
                 isCorrect: isCorrect
             });
             
-            // 更新分数
             if (isCorrect) {
                 score += 10;
             }
             
-            // 显示答案页面
             showAnswerPage(isCorrect, currentQuestion);
         });
         
         // 显示答案页面
         function showAnswerPage(isCorrect, question) {
-            // 切换页面
             questionPage.classList.remove('active');
             answerPage.classList.add('active');
             
-            // 设置图标和结果文本
             if (isCorrect) {
                 answerIcon.innerHTML = '✓';
                 answerIcon.className = 'correct-icon';
@@ -1225,12 +1223,10 @@
                 answerResult.className = 'answer-result incorrect-result';
             }
             
-            // 显示正确答案
             const correctOption = question.options[question.correctAnswer];
             const correctLetter = String.fromCharCode(65 + question.correctAnswer);
             correctAnswer.textContent = `正确答案：${correctLetter}. ${correctOption}`;
             
-            // 显示解析
             explanationText.textContent = question.explanation;
         }
         
@@ -1239,12 +1235,10 @@
             currentQuestionIndex++;
             
             if (currentQuestionIndex < questions.length) {
-                // 加载下一题
                 loadQuestion(currentQuestionIndex);
                 answerPage.classList.remove('active');
                 questionPage.classList.add('active');
             } else {
-                // 显示结果页面
                 showResultPage();
             }
         });
@@ -1254,7 +1248,6 @@
             answerPage.classList.remove('active');
             resultPage.classList.add('active');
             
-            // 显示用户信息
             userInfoDisplay.innerHTML = `
                 <h3 style="color: #1976D2; margin-bottom: 10px;">答题人信息</h3>
                 <p><strong>姓名：</strong>${userInfo.name}</p>
@@ -1262,63 +1255,54 @@
                 <p><strong>邮箱：</strong>${userInfo.email}</p>
             `;
             
-            // 更新分数显示
             scoreValue.textContent = score;
             
-            // 根据分数设置样式和消息
             let scoreClass, message, prizeMessage;
-            let showQrcode = false; // 控制是否显示二维码
+            let showQrcode = false;
             
             if (score >= 80) {
                 scoreClass = 'score-excellent';
                 message = '恭喜！您获得了免费桌游资格！';
                 prizeMessage = '您已答对8题以上，总分达到80分，可以获得《蔚蓝碎片》桌游一份！请扫描下方二维码，填写收货地址信息，以便我们寄送！';
-                showQrcode = true; // 分数>=80，显示二维码
+                showQrcode = true;
             } else if (score >= 60) {
                 scoreClass = 'score-good';
                 message = '不错！但还需要继续努力哦！';
                 prizeMessage = '谢谢您的参与！';
-                showQrcode = false; // 分数<80，不显示二维码
+                showQrcode = false;
             } else {
                 scoreClass = 'score-average';
                 message = '加油！多了解海洋知识，保护我们的蓝色星球！';
                 prizeMessage = '谢谢您的参与！';
-                showQrcode = false; // 分数<80，不显示二维码
+                showQrcode = false;
             }
             
-            // 应用样式和消息
             scoreCircle.className = `score-circle ${scoreClass}`;
             resultMessage.textContent = message;
             prizeInfo.textContent = prizeMessage;
             
-            // 控制二维码显示/隐藏
             if (showQrcode) {
-                qrcodeSection.style.display = 'block'; // 显示二维码区域
+                qrcodeSection.style.display = 'block';
             } else {
-                qrcodeSection.style.display = 'none'; // 隐藏二维码区域
+                qrcodeSection.style.display = 'none';
             }
             
-            // 更新进度条
             progressBar.style.width = '100%';
             progressText.textContent = `已完成所有题目`;
             
-            // 尝试加载二维码图片，如果失败则显示提示
             qrcodeImage.onerror = function() {
                 console.warn("二维码图片加载失败，请确保qrcode.png与HTML文件在同一目录下");
                 qrcodeImage.alt = "二维码加载失败，请检查图片文件";
                 qrcodeImage.style.border = "2px dashed #F44336";
             };
             
-            // 提交数据到飞书表格
             submitToFeishu();
         }
         
         // 提交数据到飞书表格
         async function submitToFeishu() {
-            // 计算正确题数
             const correctCount = score / 10;
             
-            // 准备要提交的数据
             const formData = {
                 name: userInfo.name || '',
                 phone: userInfo.phone || '',
@@ -1338,7 +1322,6 @@
                     checkedPhones.add(userInfo.phone);
                     checkedEmails.add(userInfo.email);
                     
-                    // 显示成功消息
                     if (score >= 80) {
                         prizeInfo.innerHTML = '<div style="text-align: center; color: #4CAF50; padding: 10px; background-color: #e8f5e9; border-radius: 5px; margin: 10px 0;">' +
                             '<p style="font-weight: bold;">✅ 数据保存成功！</p>' +
