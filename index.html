@@ -12,7 +12,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
-
+        
         body {
             background: linear-gradient(135deg, #1a2980, #26d0ce);
             min-height: 100vh;
@@ -21,7 +21,7 @@
             align-items: center;
             padding: 20px;
         }
-
+        
         .quiz-container {
             background: white;
             width: 100%;
@@ -30,38 +30,38 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
-
+        
         .header {
             background: linear-gradient(to right, #0066cc, #0099ff);
             color: white;
             padding: 25px 30px;
             text-align: center;
         }
-
+        
         .header h1 {
             font-size: 28px;
             margin-bottom: 8px;
             font-weight: 600;
         }
-
+        
         .header p {
             opacity: 0.9;
             font-size: 16px;
         }
-
+        
         .progress-bar {
             height: 6px;
             background: #e0e0e0;
             position: relative;
         }
-
+        
         .progress {
             height: 100%;
             background: #4CAF50;
             width: 0%;
             transition: width 0.5s ease;
         }
-
+        
         .progress-text {
             text-align: center;
             padding: 10px 30px;
@@ -69,44 +69,44 @@
             font-size: 14px;
             background: #f9f9f9;
         }
-
+        
         .content {
             padding: 30px;
         }
-
+        
         /* 个人信息页面样式 */
         .info-page, .question-page, .answer-page, .result-page {
             display: none;
         }
-
+        
         .info-page.active, .question-page.active, .answer-page.active, .result-page.active {
             display: block;
             animation: fadeIn 0.5s ease;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        
         .info-form {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-
+        
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
+        
         .form-group label {
             font-size: 18px;
             font-weight: 600;
             color: #333;
         }
-
+        
         .form-group input {
             padding: 15px;
             border: 2px solid #ddd;
@@ -114,29 +114,29 @@
             font-size: 16px;
             transition: all 0.3s ease;
         }
-
+        
         .form-group input:focus {
             border-color: #2196F3;
             outline: none;
             box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
         }
-
+        
         .form-group input.error {
             border-color: #F44336;
         }
-
+        
         .error-message {
             color: #F44336;
             font-size: 14px;
             display: none;
         }
-
+        
         .duplicate-message {
             color: #FF9800;
             font-size: 14px;
             display: none;
         }
-
+        
         .info-notice {
             background: #e3f2fd;
             padding: 15px;
@@ -145,7 +145,7 @@
             font-size: 16px;
             line-height: 1.6;
         }
-
+        
         /* 题目页面样式 */
         .question-title {
             font-size: 24px;
@@ -155,14 +155,14 @@
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
         }
-
+        
         .options {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-bottom: 30px;
         }
-
+        
         .option {
             background: #f8f9fa;
             border: 2px solid #e9ecef;
@@ -174,19 +174,19 @@
             display: flex;
             align-items: center;
         }
-
+        
         .option:hover {
             background: #e9f7fe;
             border-color: #b3e0ff;
             transform: translateY(-2px);
         }
-
+        
         .option.selected {
             background: #e3f2fd;
             border-color: #2196F3;
             box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
         }
-
+        
         .option-letter {
             display: inline-block;
             width: 36px;
@@ -199,17 +199,17 @@
             margin-right: 15px;
             font-weight: bold;
         }
-
+        
         .option.selected .option-letter {
             background: #1976D2;
         }
-
+        
         .buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
         }
-
+        
         .btn {
             padding: 14px 30px;
             border: none;
@@ -219,85 +219,85 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
+        
         .btn-start {
             background: #2196F3;
             color: white;
             width: 100%;
         }
-
+        
         .btn-start:hover:not(:disabled) {
             background: #1976D2;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
         }
-
+        
         .btn-start:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-
+        
         .btn-submit {
             background: #2196F3;
             color: white;
             flex: 1;
             margin-right: 10px;
         }
-
+        
         .btn-submit:hover:not(:disabled) {
             background: #1976D2;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
         }
-
+        
         .btn-submit:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-
+        
         .btn-next {
             background: #4CAF50;
             color: white;
             flex: 1;
             margin-left: 10px;
         }
-
+        
         .btn-next:hover {
             background: #388E3C;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
-
+        
         /* 答案页面样式 */
         .answer-icon {
             text-align: center;
             font-size: 80px;
             margin: 20px 0 30px;
         }
-
+        
         .correct-icon {
             color: #4CAF50;
         }
-
+        
         .incorrect-icon {
             color: #F44336;
         }
-
+        
         .answer-result {
             text-align: center;
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 20px;
         }
-
+        
         .correct-result {
             color: #4CAF50;
         }
-
+        
         .incorrect-result {
             color: #F44336;
         }
-
+        
         .correct-answer {
             background: #e8f5e9;
             border-left: 5px solid #4CAF50;
@@ -306,7 +306,7 @@
             margin: 20px 0;
             font-size: 18px;
         }
-
+        
         .explanation {
             background: #e3f2fd;
             padding: 20px;
@@ -315,18 +315,18 @@
             font-size: 16px;
             color: #333;
         }
-
+        
         .explanation h3 {
             color: #1976D2;
             margin-bottom: 10px;
         }
-
+        
         /* 结果页面样式 */
         .score-container {
             text-align: center;
             padding: 30px 0;
         }
-
+        
         .score-circle {
             width: 200px;
             height: 200px;
@@ -339,38 +339,38 @@
             font-weight: bold;
             position: relative;
         }
-
+        
         .score-excellent {
             background: linear-gradient(135deg, #4CAF50, #8BC34A);
             color: white;
         }
-
+        
         .score-good {
             background: linear-gradient(135deg, #FFC107, #FF9800);
             color: white;
         }
-
+        
         .score-average {
             background: linear-gradient(135deg, #FF9800, #F44336);
             color: white;
         }
-
+        
         .score-value {
             font-size: 60px;
             line-height: 1;
         }
-
+        
         .score-total {
             font-size: 24px;
             opacity: 0.9;
         }
-
+        
         .result-message {
             font-size: 24px;
             margin: 20px 0 30px;
             color: #333;
         }
-
+        
         .prize-info {
             background: #e8f5e9;
             padding: 20px;
@@ -378,7 +378,7 @@
             margin: 20px 0 30px;
             text-align: center;
         }
-
+        
         .user-info-display {
             background: #e3f2fd;
             padding: 20px;
@@ -387,7 +387,7 @@
             font-size: 16px;
             line-height: 1.8;
         }
-
+        
         /* 二维码区域样式 */
         .qrcode-section {
             text-align: center;
@@ -396,7 +396,7 @@
             border-top: 1px solid #eee;
             display: none; /* 默认隐藏 */
         }
-
+        
         .qrcode-container {
             display: inline-block;
             padding: 20px;
@@ -405,7 +405,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
         }
-
+        
         .qrcode-image {
             width: 180px;
             height: 180px;
@@ -413,14 +413,14 @@
             margin: 0 auto;
             border: 1px solid #eee;
         }
-
+        
         .qrcode-text {
             font-size: 16px;
             color: #666;
             margin-top: 10px;
             line-height: 1.5;
         }
-
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -428,36 +428,36 @@
             font-size: 14px;
             border-top: 1px solid #eee;
         }
-
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 24px;
             }
-
+            
             .question-title {
                 font-size: 20px;
             }
-
+            
             .option {
                 font-size: 16px;
                 padding: 15px;
             }
-
+            
             .btn {
                 padding: 12px 20px;
                 font-size: 16px;
             }
-
+            
             .score-circle {
                 width: 150px;
                 height: 150px;
             }
-
+            
             .score-value {
                 font-size: 45px;
             }
-
+            
             .qrcode-image {
                 width: 150px;
                 height: 150px;
@@ -471,12 +471,13 @@
             <h1>海洋知识答题挑战</h1>
             <p>《蔚蓝碎片》桌游互动问答 - 共10题，每题10分</p>
         </div>
-
+        
         <div class="progress-bar">
             <div class="progress" id="progress"></div>
         </div>
+        
         <div class="progress-text" id="progress-text">请先填写个人信息</div>
-
+        
         <div class="content">
             <!-- 个人信息页面 -->
             <div class="info-page active" id="info-page">
@@ -485,34 +486,34 @@
                     <p>请准确填写以下信息，答题完成后我们将根据您的得分情况确定是否获得免费桌游。获奖者将通过您填写的联系方式通知您。</p>
                     <p><strong>注意：每个手机号和邮箱只能参与一次答题</strong></p>
                 </div>
-
+                
                 <form class="info-form" id="info-form">
                     <div class="form-group">
                         <label for="name">姓名：</label>
                         <input type="text" id="name" name="name" placeholder="请输入您的姓名" required>
                         <div class="error-message" id="name-error">姓名不能为空</div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="phone">手机号：</label>
                         <input type="tel" id="phone" name="phone" placeholder="请输入11位手机号码" maxlength="11" required>
                         <div class="error-message" id="phone-error">请输入正确的11位手机号码</div>
                         <div class="duplicate-message" id="phone-duplicate-error">⚠️ 该手机号已参与过答题</div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="email">邮箱：</label>
                         <input type="email" id="email" name="email" placeholder="请输入有效的邮箱地址" required>
                         <div class="error-message" id="email-error">请输入有效的邮箱地址（需包含@）</div>
                         <div class="duplicate-message" id="email-duplicate-error">⚠️ 该邮箱已参与过答题</div>
                     </div>
-
+                    
                     <div class="buttons">
                         <button type="button" class="btn btn-start" id="start-btn" disabled>开始答题</button>
                     </div>
                 </form>
             </div>
-
+            
             <!-- 题目页面 -->
             <div class="question-page" id="question-page">
                 <div class="question-title" id="question-text"></div>
@@ -521,7 +522,7 @@
                     <button class="btn btn-submit" id="submit-btn" disabled>提交答案</button>
                 </div>
             </div>
-
+            
             <!-- 答案页面 -->
             <div class="answer-page" id="answer-page">
                 <div class="answer-icon">
@@ -537,11 +538,11 @@
                     <button class="btn btn-next" id="next-btn">下一题</button>
                 </div>
             </div>
-
+            
             <!-- 结果页面 -->
             <div class="result-page" id="result-page">
                 <div class="user-info-display" id="user-info-display"></div>
-
+                
                 <div class="score-container">
                     <div class="score-circle" id="score-circle">
                         <div class="score-value" id="score-value">0</div>
@@ -549,9 +550,9 @@
                     </div>
                     <div class="result-message" id="result-message"></div>
                 </div>
-
+                
                 <div class="prize-info" id="prize-info"></div>
-
+                
                 <!-- 二维码区域（默认隐藏，只有分数>=80分时才显示） -->
                 <div class="qrcode-section" id="qrcode-section">
                     <div class="qrcode-container">
@@ -566,7 +567,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="footer">
             <p>© 2023 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
         </div>
@@ -658,7 +659,7 @@
                 question: "国家管辖范围以外区域，俗称'公海'，蕴藏着独特的生态系统，如全球面积最大的海草床、水下绵延数千公里的海底山脉等，其约占全球海洋表面积的_______?",
                 options: ["32%", "71%", "90%", "61%"],
                 correctAnswer: 3,
-                explanation: "国家管辖范围以外区域，约覆盖全球海洋表面积的61%，是多种鲸、鲨鱼、海龟等珍稀海洋动物的迁徙通道和重要栖息地，并为许多重要经济鱼类提供了繁育场所。"
+                explanation: "国家管辖范围以外区域，约覆盖全球海洋表面积的61%，是多种鲸、鲨鱼、海鼠等珍稀海洋动物的迁徙通道和重要栖息地，并为许多重要经济鱼类提供了繁育场所。"
             }
         ];
 
@@ -703,12 +704,67 @@
         const phoneDuplicateError = document.getElementById('phone-duplicate-error');
         const emailDuplicateError = document.getElementById('email-duplicate-error');
 
-        // ==================== 修复CORS问题 ====================
-        
-        // 使用CORS代理
-        function corsProxy(url) {
-            // 使用公共CORS代理服务
-            return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        // ==================== 方案4：多代理重试机制 ====================
+        // 多个CORS代理服务器列表（按可用性排序）
+        const PROXY_SERVERS = [
+            'https://api.codetabs.com/v1/proxy?quest=',  // 代理1：较稳定
+            'https://corsproxy.io/?',  // 代理2：常用代理
+            'https://api.allorigins.win/raw?url=',  // 代理3：备用代理
+            'https://thingproxy.freeboard.io/fetch/'  // 代理4：备用代理
+        ];
+
+        // 获取代理URL
+        function getProxyUrl(targetUrl) {
+            // 随机选择一个代理服务器（分散负载）
+            const randomIndex = Math.floor(Math.random() * PROXY_SERVERS.length);
+            const proxy = PROXY_SERVERS[randomIndex];
+            return proxy + encodeURIComponent(targetUrl);
+        }
+
+        // 通过代理发送请求（带重试机制）
+        async function fetchWithRetry(url, options = {}, retries = 3) {
+            let lastError = null;
+            
+            // 按顺序尝试所有代理服务器
+            for (let attempt = 0; attempt < retries; attempt++) {
+                for (let i = 0; i < PROXY_SERVERS.length; i++) {
+                    const proxyIndex = (i + attempt) % PROXY_SERVERS.length; // 轮询代理
+                    const proxyUrl = PROXY_SERVERS[proxyIndex] + encodeURIComponent(url);
+                    
+                    try {
+                        console.log(`尝试代理 [${attempt+1}/${retries}]: ${PROXY_SERVERS[proxyIndex].substring(0, 30)}...`);
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                        
+                        const response = await fetch(proxyUrl, {
+                            ...options,
+                            signal: controller.signal
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            console.log(`✅ 代理成功: ${PROXY_SERVERS[proxyIndex].substring(0, 30)}...`);
+                            return response;
+                        } else {
+                            console.warn(`⚠️ 代理返回错误: ${response.status}`);
+                        }
+                    } catch (error) {
+                        console.warn(`❌ 代理失败 [${PROXY_SERVERS[proxyIndex].substring(0, 30)}...]: ${error.name === 'AbortError' ? '超时' : error.message}`);
+                        lastError = error;
+                        continue; // 继续尝试下一个代理
+                    }
+                }
+                
+                // 如果所有代理都失败，等待一段时间后重试
+                if (attempt < retries - 1) {
+                    console.log(`⏳ 所有代理失败，${2 ** attempt}秒后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000 * Math.pow(2, attempt)));
+                }
+            }
+            
+            throw new Error(`所有代理服务器都失败: ${lastError ? lastError.message : '未知错误'}`);
         }
 
         // 获取飞书访问令牌
@@ -724,12 +780,9 @@
             console.log('重新获取飞书token');
             
             try {
-                // 通过CORS代理获取token
-                const url = corsProxy('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal');
+                const tokenUrl = 'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal';
                 
-                console.log('获取token URL:', url);
-                
-                const response = await fetch(url, {
+                const response = await fetchWithRetry(tokenUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -738,14 +791,8 @@
                     body: JSON.stringify({
                         app_id: FEISHU_CONFIG.APP_ID,
                         app_secret: FEISHU_CONFIG.APP_SECRET
-                    }),
-                    // 增加超时时间
-                    signal: AbortSignal.timeout(10000)
+                    })
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP错误: ${response.status}`);
-                }
                 
                 const data = await response.json();
                 console.log('获取token响应:', data);
@@ -763,73 +810,39 @@
             } catch (error) {
                 console.error('获取飞书token时出错:', error);
                 
-                // 如果CORS代理失败，尝试备用方案
-                console.log('尝试备用方案获取token...');
+                // 如果所有代理都失败，尝试直接请求（极少数情况可能允许跨域）
                 try {
-                    // 备用方案：通过JSONP方式
-                    const token = await getFeishuTokenFallback();
-                    return token;
-                } catch (fallbackError) {
-                    console.error('备用方案也失败:', fallbackError);
-                    throw error;
-                }
-            }
-        }
-
-        // 备用方案：通过JSONP获取token
-        async function getFeishuTokenFallback() {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'feishu_token_' + Date.now();
-                
-                // 创建script标签
-                const script = document.createElement('script');
-                
-                // 通过代理服务器获取token
-                const proxyUrl = 'https://corsproxy.io/?';
-                const encodedUrl = encodeURIComponent(
-                    'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal'
-                );
-                
-                // 临时存储回调
-                window[callbackName] = function(data) {
-                    console.log('JSONP获取token响应:', data);
+                    console.log('尝试直接请求飞书API（绕过代理）...');
+                    const directResponse = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            app_id: FEISHU_CONFIG.APP_ID,
+                            app_secret: FEISHU_CONFIG.APP_SECRET
+                        })
+                    });
                     
-                    if (data.code === 0) {
-                        feishuTokenCache = {
-                            token: data.tenant_access_token,
-                            expireTime: Date.now() + (data.expire - 300) * 1000
-                        };
-                        resolve(data.tenant_access_token);
-                    } else {
-                        reject(new Error(`获取token失败: ${data.msg}`));
-                    }
-                    
-                    // 清理
-                    delete window[callbackName];
-                    if (script.parentNode) {
-                        script.parentNode.removeChild(script);
-                    }
-                };
-                
-                script.src = `${proxyUrl}${encodedUrl}&callback=${callbackName}`;
-                script.onerror = () => {
-                    reject(new Error('JSONP获取token失败'));
-                    delete window[callbackName];
-                };
-                
-                document.body.appendChild(script);
-                
-                // 10秒超时
-                setTimeout(() => {
-                    if (window[callbackName]) {
-                        reject(new Error('获取token超时'));
-                        delete window[callbackName];
-                        if (script.parentNode) {
-                            script.parentNode.removeChild(script);
+                    if (directResponse.ok) {
+                        const data = await directResponse.json();
+                        if (data.code === 0) {
+                            feishuTokenCache = {
+                                token: data.tenant_access_token,
+                                expireTime: now + (data.expire - 300) * 1000
+                            };
+                            console.log('✅ 直接请求成功，获取到token');
+                            return data.tenant_access_token;
                         }
                     }
-                }, 10000);
-            });
+                } catch (directError) {
+                    console.warn('直接请求也失败:', directError.message);
+                }
+                
+                throw error;
+            }
         }
 
         // 检查重复
@@ -838,22 +851,14 @@
                 const token = await getFeishuToken();
                 
                 // 查询飞书表格
-                const url = corsProxy(
-                    `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records?page_size=100`
-                );
+                const queryUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records?page_size=100`;
                 
-                console.log('查询重复URL:', url);
-                
-                const response = await fetch(url, {
+                const response = await fetchWithRetry(queryUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP错误: ${response.status}`);
-                }
                 
                 const data = await response.json();
                 console.log('查询重复响应:', data);
@@ -867,7 +872,6 @@
                     for (let i = 0; i < items.length; i++) {
                         const record = items[i];
                         const fields = record.fields || {};
-                        
                         const existingPhone = fields['手机号'] ? fields['手机号'].toString().trim() : '';
                         const existingEmail = fields['邮箱'] ? fields['邮箱'].toString().trim().toLowerCase() : '';
                         
@@ -895,7 +899,6 @@
         async function saveToFeishu(formData) {
             try {
                 const token = await getFeishuToken();
-                
                 const timeStr = new Date().toLocaleString('zh-CN', {
                     timeZone: 'Asia/Shanghai',
                     year: 'numeric',
@@ -919,13 +922,9 @@
                 
                 console.log('准备保存的数据:', recordData);
                 
-                const url = corsProxy(
-                    `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records`
-                );
+                const saveUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${FEISHU_CONFIG.APP_TOKEN}/tables/${FEISHU_CONFIG.TABLE_ID}/records`;
                 
-                console.log('保存数据URL:', url);
-                
-                const response = await fetch(url, {
+                const response = await fetchWithRetry(saveUrl, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -934,51 +933,30 @@
                     body: JSON.stringify(recordData)
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP错误: ${response.status}`);
-                }
-                
                 const data = await response.json();
                 console.log('保存数据响应:', data);
                 
                 if (response.status === 200 && data.code === 0) {
-                    return { 
-                        success: true, 
-                        message: '数据保存成功',
-                        record_id: data.data.record.record_id 
-                    };
+                    return { success: true, message: '数据保存成功', record_id: data.data.record.record_id };
                 } else if (data.code === 1254045) {
-                    return { 
-                        success: false, 
-                        message: '字段名错误，请联系管理员检查表格字段' 
-                    };
+                    return { success: false, message: '字段名错误，请联系管理员检查表格字段' };
                 } else if (data.code === 91403) {
-                    return { 
-                        success: false, 
-                        message: '权限不足，请检查应用权限设置' 
-                    };
+                    return { success: false, message: '权限不足，请检查应用权限设置' };
                 } else {
-                    return { 
-                        success: false, 
-                        message: `保存失败: ${data.msg} (错误码: ${data.code})` 
-                    };
+                    return { success: false, message: `保存失败: ${data.msg} (错误码: ${data.code})` };
                 }
             } catch (error) {
                 console.error('保存数据时出错:', error);
-                return { 
-                    success: false, 
-                    message: `网络错误: ${error.message}` 
-                };
+                return { success: false, message: `网络错误: ${error.message}` };
             }
         }
 
         // ==================== 原有功能函数 ====================
-        
         // 验证表单函数
         function validateForm() {
             let isValid = true;
             let hasDuplicate = false;
-
+            
             // 验证姓名
             if (!nameInput.value.trim()) {
                 nameError.style.display = 'block';
@@ -988,7 +966,7 @@
                 nameError.style.display = 'none';
                 nameInput.classList.remove('error');
             }
-
+            
             // 验证手机号
             const phoneRegex = /^1[3-9]\d{9}$/;
             if (!phoneRegex.test(phoneInput.value.trim())) {
@@ -998,7 +976,7 @@
             } else {
                 phoneError.style.display = 'none';
                 phoneInput.classList.remove('error');
-
+                
                 // 检查手机号是否重复
                 if (checkedPhones.has(phoneInput.value.trim())) {
                     phoneDuplicateError.style.display = 'block';
@@ -1008,7 +986,7 @@
                     phoneDuplicateError.style.display = 'none';
                 }
             }
-
+            
             // 验证邮箱
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailInput.value.trim())) {
@@ -1018,7 +996,7 @@
             } else {
                 emailError.style.display = 'none';
                 emailInput.classList.remove('error');
-
+                
                 // 检查邮箱是否重复
                 if (checkedEmails.has(emailInput.value.trim().toLowerCase())) {
                     emailDuplicateError.style.display = 'block';
@@ -1028,32 +1006,32 @@
                     emailDuplicateError.style.display = 'none';
                 }
             }
-
+            
             // 启用/禁用开始答题按钮
             startBtn.disabled = !isValid || hasDuplicate;
             return isValid && !hasDuplicate;
         }
-
+        
         // 实时验证表单
         nameInput.addEventListener('input', validateForm);
         phoneInput.addEventListener('input', validateForm);
         emailInput.addEventListener('input', validateForm);
-
+        
         // 开始答题按钮点击事件
         startBtn.addEventListener('click', function() {
             if (!validateForm()) return;
-
+            
             // 保存用户信息
             userInfo = {
                 name: nameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 email: emailInput.value.trim().toLowerCase()
             };
-
+            
             // 检查手机号和邮箱是否重复
             checkDuplicateBeforeStart(userInfo.phone, userInfo.email);
         });
-
+        
         // 检查手机号和邮箱是否重复
         async function checkDuplicateBeforeStart(phone, email) {
             console.log('开始检查重复（使用飞书API）:', { phone, email });
@@ -1100,7 +1078,7 @@
                 startBtn.textContent = '开始答题';
             }
         }
-
+        
         // 处理重复错误
         function handleDuplicateError(message, phone, email) {
             if (message && message.includes('手机号')) {
@@ -1117,7 +1095,7 @@
                 alert('⚠️ 该手机号或邮箱已参与过答题\n\n请使用其他联系方式');
             }
         }
-
+        
         // 处理保存错误
         function handleSaveError(message) {
             if (message && message.includes('已参与过答题')) {
@@ -1158,17 +1136,17 @@
                     '</div>';
             }
         }
-
+        
         // 加载题目
         function loadQuestion(index) {
             const question = questions[index];
             questionText.textContent = `${index + 1}. ${question.question}`;
             optionsContainer.innerHTML = '';
-
+            
             // 重置选择
             selectedOption = null;
             submitBtn.disabled = true;
-
+            
             // 创建选项
             question.options.forEach((option, optionIndex) => {
                 const optionElement = document.createElement('div');
@@ -1177,63 +1155,63 @@
                     <span class="option-letter">${String.fromCharCode(65 + optionIndex)}</span>
                     <span class="option-text">${option}</span>
                 `;
-
+                
                 // 添加点击事件
                 optionElement.addEventListener('click', () => {
                     // 移除其他选项的选择状态
                     document.querySelectorAll('.option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-
+                    
                     // 设置当前选项为选中状态
                     optionElement.classList.add('selected');
                     selectedOption = optionIndex;
                     submitBtn.disabled = false;
                 });
-
+                
                 optionsContainer.appendChild(optionElement);
             });
-
+            
             // 更新进度条
             updateProgress(index);
         }
-
+        
         // 更新进度条
         function updateProgress(index) {
             const progress = ((index + 1) / questions.length) * 100;
             progressBar.style.width = `${progress}%`;
             progressText.textContent = `第${index + 1}题 / 共${questions.length}题`;
         }
-
+        
         // 提交答案
         submitBtn.addEventListener('click', () => {
             if (selectedOption === null) return;
-
+            
             const currentQuestion = questions[currentQuestionIndex];
             const isCorrect = selectedOption === currentQuestion.correctAnswer;
-
+            
             // 记录用户答案
             userAnswers.push({
                 questionIndex: currentQuestionIndex,
                 selectedOption: selectedOption,
                 isCorrect: isCorrect
             });
-
+            
             // 更新分数
             if (isCorrect) {
                 score += 10;
             }
-
+            
             // 显示答案页面
             showAnswerPage(isCorrect, currentQuestion);
         });
-
+        
         // 显示答案页面
         function showAnswerPage(isCorrect, question) {
             // 切换页面
             questionPage.classList.remove('active');
             answerPage.classList.add('active');
-
+            
             // 设置图标和结果文本
             if (isCorrect) {
                 answerIcon.innerHTML = '✓';
@@ -1246,20 +1224,20 @@
                 answerResult.textContent = '回答错误！';
                 answerResult.className = 'answer-result incorrect-result';
             }
-
+            
             // 显示正确答案
             const correctOption = question.options[question.correctAnswer];
             const correctLetter = String.fromCharCode(65 + question.correctAnswer);
             correctAnswer.textContent = `正确答案：${correctLetter}. ${correctOption}`;
-
+            
             // 显示解析
             explanationText.textContent = question.explanation;
         }
-
+        
         // 下一题
         nextBtn.addEventListener('click', () => {
             currentQuestionIndex++;
-
+            
             if (currentQuestionIndex < questions.length) {
                 // 加载下一题
                 loadQuestion(currentQuestionIndex);
@@ -1270,12 +1248,12 @@
                 showResultPage();
             }
         });
-
+        
         // 显示结果页面
         function showResultPage() {
             answerPage.classList.remove('active');
             resultPage.classList.add('active');
-
+            
             // 显示用户信息
             userInfoDisplay.innerHTML = `
                 <h3 style="color: #1976D2; margin-bottom: 10px;">答题人信息</h3>
@@ -1283,14 +1261,14 @@
                 <p><strong>手机号：</strong>${userInfo.phone}</p>
                 <p><strong>邮箱：</strong>${userInfo.email}</p>
             `;
-
+            
             // 更新分数显示
             scoreValue.textContent = score;
-
+            
             // 根据分数设置样式和消息
             let scoreClass, message, prizeMessage;
             let showQrcode = false; // 控制是否显示二维码
-
+            
             if (score >= 80) {
                 scoreClass = 'score-excellent';
                 message = '恭喜！您获得了免费桌游资格！';
@@ -1307,34 +1285,34 @@
                 prizeMessage = '谢谢您的参与！';
                 showQrcode = false; // 分数<80，不显示二维码
             }
-
+            
             // 应用样式和消息
             scoreCircle.className = `score-circle ${scoreClass}`;
             resultMessage.textContent = message;
             prizeInfo.textContent = prizeMessage;
-
+            
             // 控制二维码显示/隐藏
             if (showQrcode) {
                 qrcodeSection.style.display = 'block'; // 显示二维码区域
             } else {
                 qrcodeSection.style.display = 'none'; // 隐藏二维码区域
             }
-
+            
             // 更新进度条
             progressBar.style.width = '100%';
             progressText.textContent = `已完成所有题目`;
-
+            
             // 尝试加载二维码图片，如果失败则显示提示
             qrcodeImage.onerror = function() {
                 console.warn("二维码图片加载失败，请确保qrcode.png与HTML文件在同一目录下");
                 qrcodeImage.alt = "二维码加载失败，请检查图片文件";
                 qrcodeImage.style.border = "2px dashed #F44336";
             };
-
+            
             // 提交数据到飞书表格
             submitToFeishu();
         }
-
+        
         // 提交数据到飞书表格
         async function submitToFeishu() {
             // 计算正确题数
