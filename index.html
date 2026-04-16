@@ -706,11 +706,19 @@
 
         // ==================== 代理和API函数 ====================
         // 代理服务器列表（已根据可用性调整）
+        // 代理服务器列表（已按当前存活率和兼容性优化排序）
         const PROXY_SERVERS = [
-            'https://api.codetabs.com/v1/proxy?quest=',  // 最稳定，从您的日志看这个可用
-            'https://corsproxy.io/?',  // 备用代理1
-            'https://thingproxy.freeboard.io/fetch/',  // 备用代理2
-            'https://api.allorigins.win/raw?url='  // 备用代理3
+            // 1号种子选手：AllOrigins (非常稳定，支持POST，对中文友好)
+            'https://api.allorigins.win/raw?url=',
+    
+            // 2号种子选手：Corsproxy (老牌，偶尔抽风)
+            'https://corsproxy.io/?',
+    
+            // 3号种子选手：YcCors (国内访问速度较快)
+            'https://ycors.vercel.app/api/',
+    
+            // 4号备选：ThingProxy (有时会解析失败)
+            'https://thingproxy.freeboard.io/fetch/'
         ];
 
         // 通过代理发送请求
