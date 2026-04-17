@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>海洋知识答题 - 《蔚蓝碎片》桌游互动</title>
     <style>
-        /* 所有样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -373,26 +372,6 @@
             text-align: center;
         }
 
-        .save-status {
-            text-align: center;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-
-        .save-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 2px solid #4caf50;
-        }
-
-        .save-error {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 2px solid #f44336;
-        }
-
         .user-info-display {
             background: #e3f2fd;
             padding: 20px;
@@ -489,7 +468,6 @@
         <div class="progress-bar">
             <div class="progress" id="progress"></div>
         </div>
-
         <div class="progress-text" id="progress-text">请先填写个人信息</div>
 
         <div class="content">
@@ -554,9 +532,6 @@
             <div class="result-page" id="result-page">
                 <div class="user-info-display" id="user-info-display"></div>
 
-                <!-- 数据保存状态 -->
-                <div class="save-status" id="save-status" style="display: none;"></div>
-
                 <div class="score-container">
                     <div class="score-circle" id="score-circle">
                         <div class="score-value" id="score-value">0</div>
@@ -583,15 +558,11 @@
         </div>
 
         <div class="footer">
-            <p>© 2026 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
+            <p>© 2023 《蔚蓝碎片》桌游互动 | 海洋知识问答</p>
         </div>
     </div>
 
     <script>
-        // 配置：后端URL（需要替换为您的谷歌Apps脚本部署的Web App URL）
-        // 注意：这个URL是您部署谷歌Apps脚本后获得的Web App URL
-        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyiWTR44c8-0aeXVCgpX7ulVfIsyh_9n7w2okhR8easW9bUO4XE7i0JOj0EqPO5QyVC/exec'; // 请替换为您的实际URL
-
         // 用户信息
         let userInfo = {
             name: '',
@@ -693,7 +664,6 @@
         const qrcodeImage = document.getElementById('qrcode-image');
         const qrcodeText = document.getElementById('qrcode-text');
         const qrcodeSection = document.getElementById('qrcode-section');
-        const saveStatus = document.getElementById('save-status');
 
         // 表单元素
         const nameInput = document.getElementById('name');
@@ -703,8 +673,7 @@
         const phoneError = document.getElementById('phone-error');
         const emailError = document.getElementById('email-error');
 
-        // ==================== 表单验证函数 ====================
-        // 验证表单
+        // 验证表单函数
         function validateForm() {
             let isValid = true;
 
@@ -720,7 +689,7 @@
 
             // 验证手机号
             const phoneRegex = /^1[3-9]\d{9}$/;
-            if (!phoneRegex.test(phoneInput.value.trim())) {
+            if (!phoneRegex.test(phoneInput.value)) {
                 phoneError.style.display = 'block';
                 phoneInput.classList.add('error');
                 isValid = false;
@@ -731,7 +700,7 @@
 
             // 验证邮箱
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput.value.trim())) {
+            if (!emailRegex.test(emailInput.value)) {
                 emailError.style.display = 'block';
                 emailInput.classList.add('error');
                 isValid = false;
@@ -740,6 +709,7 @@
                 emailInput.classList.remove('error');
             }
 
+            // 启用/禁用开始答题按钮
             startBtn.disabled = !isValid;
             return isValid;
         }
@@ -753,29 +723,35 @@
         startBtn.addEventListener('click', function() {
             if (!validateForm()) return;
 
+            // 保存用户信息
             userInfo = {
                 name: nameInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                email: emailInput.value.trim().toLowerCase()
+                phone: phoneInput.value,
+                email: emailInput.value
             };
 
-            // 开始答题
+            // 切换到题目页面
             infoPage.classList.remove('active');
             questionPage.classList.add('active');
+
+            // 更新进度条
             updateProgress(0);
+
+            // 加载第一题
             loadQuestion(currentQuestionIndex);
         });
 
-        // ==================== 答题功能函数 ====================
         // 加载题目
         function loadQuestion(index) {
             const question = questions[index];
             questionText.textContent = `${index + 1}. ${question.question}`;
             optionsContainer.innerHTML = '';
 
+            // 重置选择
             selectedOption = null;
             submitBtn.disabled = true;
 
+            // 创建选项
             question.options.forEach((option, optionIndex) => {
                 const optionElement = document.createElement('div');
                 optionElement.className = 'option';
@@ -784,11 +760,14 @@
                     <span class="option-text">${option}</span>
                 `;
 
+                // 添加点击事件
                 optionElement.addEventListener('click', () => {
+                    // 移除其他选项的选择状态
                     document.querySelectorAll('.option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
 
+                    // 设置当前选项为选中状态
                     optionElement.classList.add('selected');
                     selectedOption = optionIndex;
                     submitBtn.disabled = false;
@@ -797,6 +776,7 @@
                 optionsContainer.appendChild(optionElement);
             });
 
+            // 更新进度条
             updateProgress(index);
         }
 
@@ -814,24 +794,29 @@
             const currentQuestion = questions[currentQuestionIndex];
             const isCorrect = selectedOption === currentQuestion.correctAnswer;
 
+            // 记录用户答案
             userAnswers.push({
                 questionIndex: currentQuestionIndex,
                 selectedOption: selectedOption,
                 isCorrect: isCorrect
             });
 
+            // 更新分数
             if (isCorrect) {
                 score += 10;
             }
 
+            // 显示答案页面
             showAnswerPage(isCorrect, currentQuestion);
         });
 
         // 显示答案页面
         function showAnswerPage(isCorrect, question) {
+            // 切换页面
             questionPage.classList.remove('active');
             answerPage.classList.add('active');
 
+            // 设置图标和结果文本
             if (isCorrect) {
                 answerIcon.innerHTML = '✓';
                 answerIcon.className = 'correct-icon';
@@ -844,10 +829,12 @@
                 answerResult.className = 'answer-result incorrect-result';
             }
 
+            // 显示正确答案
             const correctOption = question.options[question.correctAnswer];
             const correctLetter = String.fromCharCode(65 + question.correctAnswer);
             correctAnswer.textContent = `正确答案：${correctLetter}. ${correctOption}`;
 
+            // 显示解析
             explanationText.textContent = question.explanation;
         }
 
@@ -856,10 +843,12 @@
             currentQuestionIndex++;
 
             if (currentQuestionIndex < questions.length) {
+                // 加载下一题
                 loadQuestion(currentQuestionIndex);
                 answerPage.classList.remove('active');
                 questionPage.classList.add('active');
             } else {
+                // 显示结果页面
                 showResultPage();
             }
         });
@@ -877,164 +866,110 @@
                 <p><strong>邮箱：</strong>${userInfo.email}</p>
             `;
 
-            // 显示分数
+            // 更新分数显示
             scoreValue.textContent = score;
 
-            // 根据分数设置样式和信息
+            // 根据分数设置样式和消息
             let scoreClass, message, prizeMessage;
-            let showQrcode = false;
+            let showQrcode = false; // 控制是否显示二维码
 
             if (score >= 80) {
                 scoreClass = 'score-excellent';
                 message = '恭喜！您获得了免费桌游资格！';
                 prizeMessage = '您已答对8题以上，总分达到80分，可以获得《蔚蓝碎片》桌游一份！请扫描下方二维码，填写收货地址信息，以便我们寄送！';
-                showQrcode = true;
+                showQrcode = true; // 分数>=80，显示二维码
             } else if (score >= 60) {
                 scoreClass = 'score-good';
                 message = '不错！但还需要继续努力哦！';
                 prizeMessage = '谢谢您的参与！';
-                showQrcode = false;
+                showQrcode = false; // 分数<80，不显示二维码
             } else {
                 scoreClass = 'score-average';
                 message = '加油！多了解海洋知识，保护我们的蓝色星球！';
                 prizeMessage = '谢谢您的参与！';
-                showQrcode = false;
+                showQrcode = false; // 分数<80，不显示二维码
             }
 
+            // 应用样式和消息
             scoreCircle.className = `score-circle ${scoreClass}`;
             resultMessage.textContent = message;
             prizeInfo.textContent = prizeMessage;
 
-            // 显示二维码区域
+            // 控制二维码显示/隐藏
             if (showQrcode) {
-                qrcodeSection.style.display = 'block';
+                qrcodeSection.style.display = 'block'; // 显示二维码区域
             } else {
-                qrcodeSection.style.display = 'none';
+                qrcodeSection.style.display = 'none'; // 隐藏二维码区域
             }
 
             // 更新进度条
             progressBar.style.width = '100%';
             progressText.textContent = `已完成所有题目`;
 
-            // 二维码图片加载失败处理
+            // 尝试加载二维码图片，如果失败则显示提示
             qrcodeImage.onerror = function() {
                 console.warn("二维码图片加载失败，请确保qrcode.png与HTML文件在同一目录下");
                 qrcodeImage.alt = "二维码加载失败，请检查图片文件";
                 qrcodeImage.style.border = "2px dashed #F44336";
             };
 
-            // 保存数据到谷歌表格
-            submitToGoogleSheet();
+            // 提交数据到Google表格 - 使用JSONP方法
+            submitToGoogleSheets();
         }
 
-        // ==================== 数据保存到谷歌表格 ====================
-        // 提交数据到谷歌表格
-        async function submitToGoogleSheet() {
+        // 提交数据到Google表格 - 使用JSONP方法
+        function submitToGoogleSheets() {
+            // 您的Google Apps Script Web应用URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby849JnU-iZvzLLC5BqM4Esd4talP10hZ7ye06NgYpnyO9I9-vS9vV1uVTTTEDesO3k/exec';
+
+            // 计算正确题数
             const correctCount = score / 10;
-            const summary = `答题${userAnswers.length}题，正确${correctCount}题，得分${score}分`;
 
-            // 准备要发送的数据
-            const formData = new URLSearchParams();
-            formData.append('name', userInfo.name || '');
-            formData.append('phone', userInfo.phone || '');
-            formData.append('email', userInfo.email || '');
-            formData.append('score', score.toString());
-            formData.append('summary', summary);
-            formData.append('callback', 'handleGoogleSheetResponse'); // JSONP回调函数名
-
-            console.log('准备保存数据到谷歌表格:', {
-                name: userInfo.name,
-                phone: userInfo.phone,
-                email: userInfo.email,
+            // 准备要提交的数据
+            const formData = {
+                name: userInfo.name || '',
+                phone: userInfo.phone || '',
+                email: userInfo.email || '',
                 score: score,
-                summary: summary
+                summary: `答题${userAnswers.length}题，正确${correctCount}题，得分${score}分`
+            };
+
+            // 创建唯一的回调函数名
+            const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2);
+
+            // 创建script标签
+            const script = document.createElement('script');
+
+            // 创建URL
+            const url = new URL(scriptURL);
+            url.searchParams.append('callback', callbackName);
+            Object.keys(formData).forEach(key => {
+                url.searchParams.append(key, formData[key]);
             });
 
-            // 显示保存状态
-            saveStatus.style.display = 'block';
-            saveStatus.className = 'save-status';
-            saveStatus.textContent = '正在保存数据到服务器...';
+            script.src = url.toString();
 
-            try {
-                // 构建URL（GET请求）
-                const url = `${BACKEND_URL}?${formData.toString()}`;
-                console.log('请求URL:', url);
+            // 定义回调函数
+            window[callbackName] = function(response) {
+                console.log('JSONP响应:', response);
+                if (response && response.result === 'success') {
+                    console.log('✅ 数据成功保存到Google表格');
+                } else {
+                    console.error('❌ 保存失败:', response ? response.message : '未知错误');
+                }
 
-                // 发送请求
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'no-cors' // 由于谷歌Apps脚本Web App可能有限制，使用no-cors
-                });
+                // 清理
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            };
 
-                // 由于使用了no-cors，我们无法直接读取响应
-                // 但我们可以假设请求成功发送了
-                console.log('请求已发送，等待JSONP响应...');
-                
-                // 设置一个超时，如果没有JSONP响应，我们假设请求成功
-                setTimeout(() => {
-                    if (saveStatus.textContent === '正在保存数据到服务器...') {
-                        // 假设成功
-                        showSaveSuccess('数据已保存到谷歌表格');
-                        console.log('✅ 数据保存成功（假设）');
-                    }
-                }, 3000);
+            // 添加到页面
+            document.body.appendChild(script);
 
-            } catch (error) {
-                console.error('保存数据时出错:', error);
-                showSaveError(`保存失败: ${error.message}`);
-            }
+            console.log('通过JSONP发送数据到Google表格');
         }
-
-        // 处理谷歌表格响应（JSONP回调函数）
-        window.handleGoogleSheetResponse = function(response) {
-            console.log('收到谷歌表格响应:', response);
-            
-            if (response.result === 'success') {
-                showSaveSuccess(`数据已成功保存到谷歌表格 (记录行号: ${response.row_number})`);
-            } else {
-                showSaveError(`保存失败: ${response.message}`);
-            }
-        };
-
-        // 显示保存成功
-        function showSaveSuccess(message) {
-            saveStatus.style.display = 'block';
-            saveStatus.className = 'save-status save-success';
-            saveStatus.textContent = `✅ ${message}`;
-            
-            // 如果分数大于等于80分，在奖品信息中也显示成功消息
-            if (score >= 80) {
-                prizeInfo.innerHTML = '<div style="text-align: center; color: #4CAF50; padding: 10px; background-color: #e8f5e9; border-radius: 5px; margin: 10px 0;">' +
-                    '<p style="font-weight: bold;">✅ 数据保存成功！</p>' +
-                    '<p>您的答题记录已成功保存，请扫描下方二维码领取奖品</p>' +
-                    '</div>';
-            } else {
-                prizeInfo.innerHTML = '<div style="text-align: center; color: #4CAF50; padding: 10px; background-color: #e8f5e9; border-radius: 5px; margin: 10px 0;">' +
-                    '<p style="font-weight: bold;">✅ 数据保存成功！</p>' +
-                    '<p>您的答题记录已成功保存，感谢您的参与！</p>' +
-                    '</div>';
-            }
-        }
-
-        // 显示保存错误
-        function showSaveError(message) {
-            saveStatus.style.display = 'block';
-            saveStatus.className = 'save-status save-error';
-            saveStatus.textContent = `❌ ${message}`;
-            
-            prizeInfo.innerHTML = '<div style="text-align: center; color: #F44336; padding: 10px; background-color: #ffebee; border-radius: 5px; margin: 10px 0;">' +
-                '<p style="font-weight: bold;">⚠️ 数据保存失败</p>' +
-                '<p>' + message + '</p>' +
-                '<p style="font-size: 14px; margin-top: 10px;">请截图联系客服</p>' +
-                '</div>';
-        }
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('海洋知识答题系统已加载');
-            console.log('后端URL:', BACKEND_URL);
-            console.log('请确保已将BACKEND_URL常量替换为您的实际谷歌Apps脚本Web App URL');
-        });
     </script>
 </body>
 </html>
